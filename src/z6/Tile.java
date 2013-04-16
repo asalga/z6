@@ -4,7 +4,7 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 public class Tile {
-	int id;
+	public int id;
 
 	/*
 	 * String path = "C:\\Users\\asalga\\Dropbox\\demos\\orchard\\";

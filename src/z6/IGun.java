@@ -1,5 +1,7 @@
 package z6;
 
+import z6.Math.Vec2;
+
 /**
  * Common interface for all guns.
  */
@@ -10,6 +12,11 @@ interface IGun{
 
   // All guns know how often they can fire shots
   public void setFireRatePerSec(float shotsPerSecond);
+  
+  // Set the speed of the shots in pixels/second
+  public void setShotSpeed(float shotSpeed);
+  
+  public float getShotSpeed();
   
   // 
   public int getID();
@@ -29,7 +36,10 @@ interface IGun{
   public void update(float deltaTimeInSeconds);
   public void render();
 
-  public void setShotType(int shotType);
+  //public void setShotType(int shotType);
+  public void setFireBehaviour(FireBehaviour fireBehaviour);
+  
+  public void setTarget(Node _target);
   
   public void setDirection(Vec2 direction);
   //public void setPosition(PVector2D p);???????

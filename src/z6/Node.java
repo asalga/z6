@@ -1,5 +1,7 @@
 package z6;
 
+import z6.Math.Vec2;
+
 /*
  * This class was primarily created to handle the Turret/IGun relationship
  * along with other parent/child transformation relationships that may come up.

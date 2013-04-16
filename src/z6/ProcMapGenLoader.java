@@ -7,15 +7,28 @@ import processing.core.PApplet;
  */
 public class ProcMapGenLoader implements IMapLoader{
   private Map gameMap;
+  private int numRows, numCols;
   
   public ProcMapGenLoader(int numCols, int numRows){
     gameMap = new Map(numCols, numRows);
+    this.numRows = numRows;
+    this.numCols = numCols;
   }
   
-  public void load(){//PApplet p){
-	//parent = p;
-    //noiseSeed(0);//(int)random(1,1000));
-      
+  public int getHeight(){
+	  return numRows;
+  }
+  
+  public int getWidth(){
+	  return numCols;
+  }
+  
+  public Tile getTile(int r, int c){
+	  return gameMap.getTile(r,	 c);
+  }
+  
+  public void load(){
+
 	Renderer.noiseSeed(0);
 	
     for(int r = 0; r < Constants.MAP_HEIGHT_IN_TILES; r++){

@@ -1,5 +1,7 @@
 package z6;
 
+import z6.Math.Vec2;
+
 
 /**
  * GOOD

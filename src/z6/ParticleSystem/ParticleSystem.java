@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import z6.Renderer;
 import z6.Utils;
-import z6.Vec2;
+import z6.Math.Vec2;
 
 /**
  * 

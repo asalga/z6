@@ -8,7 +8,15 @@ public final class Renderer {
 
 	public static int WIDTH = 500;
 	public static int HEIGHT = 500;
+	
+	public static void noiseSeed(int seed){
+		p.noiseSeed(seed);
+	}
 
+	public static float noise(int a){
+		return p.noise(a);
+	}
+	
 	public static float frameRate(){
 		return p.frameRate;
 	}
@@ -92,8 +100,20 @@ public final class Renderer {
 		p.println(str);
 	}
 	
+	public static void print(String str){
+		p.print(str);
+	}
+	
+	public static void noFill(){
+		p.noFill();
+	}
+	
 	public static void fill(int r, int g, int b){
 		p.fill(r,g,b);
+	}
+	
+	public static void fill(int r, int g, int b, int a){
+		p.fill(r,g,b,a);
 	}
 
 	public static void fill(int b, int a) {

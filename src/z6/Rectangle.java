@@ -16,4 +16,8 @@ public class Rectangle{
   public String toString(){
     return x + ", " + y + ", " + w + ", " + h;
   }
+  
+  public Rectangle clone(){
+	  return new Rectangle(x,y,w,h);
+  }
 }

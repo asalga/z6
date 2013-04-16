@@ -9,4 +9,7 @@ package z6;
 public interface IMapLoader{
   Map getMap();
   void load();
+  public int getWidth();
+  public int getHeight();
+  public Tile getTile(int r, int c);
 }

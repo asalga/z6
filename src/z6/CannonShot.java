@@ -1,23 +1,27 @@
 package z6;
 
+import z6.Math.Vec2;
+
 /*
  * TODO: add tags?
  */
 public class CannonShot implements IShot {// implements ICollidable{
 	private final float DEATH_AGE_IN_SEC = 3.0f;
-	private final int DIAMETER = 5;
+	private final int DIAMETER = 6;
 
 	private int collisionLayer;
 
 	private Vec2 position;
 	private Vec2 velocity;
 	private boolean isAlive;
+	
 	// alive, dying, dead
 	private float lifeTime;
 	private int id;
 
-	// who shot this bullet? any ship cannot harm themselves.
-
+	/**
+	 * 
+	 */
 	public CannonShot() {
 		setPosition(new Vec2(0, 0));
 		setVelocity(new Vec2(0, 0));
@@ -31,16 +35,17 @@ public class CannonShot implements IShot {// implements ICollidable{
 		return id;
 	}
 
+	public Vec2 getPosition() {
+		return position;
+	}
+	
+	
 	public void setVelocity(Vec2 v) {
 		velocity = v;
 	}
 
 	public void setPosition(Vec2 p) {
 		position = p;
-	}
-
-	public Vec2 getPosition() {
-		return position;
 	}
 
 	public boolean isAlive() {
@@ -73,11 +78,9 @@ public class CannonShot implements IShot {// implements ICollidable{
 	}
 
 	public void render() {
-		//Renderer.println("render canon shot");
-		
 		Renderer.pushStyle();
-		Renderer.strokeWeight(1);
-		Renderer.stroke(0);
+		Renderer.strokeWeight(2);
+		Renderer.stroke(0, 0, 0);
 		Renderer.fill(200, 255);
 
 		// Convert world coords to screen coords

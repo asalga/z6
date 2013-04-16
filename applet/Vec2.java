@@ -76,22 +76,6 @@ public class Vec2{
 		return this;
 	}
 	
-	/**
-	 * 
-	 * @param v
-	 * @param s
-	 * @return
-	 */
-	public static Vec2 scale(Vec2 v, float s){
-		return new Vec2(v.x * s, v.y * s);
-	}
-	
-	/**
-	 * 
-	 * @param sx
-	 * @param sy
-	 * @return
-	 */
 	public Vec2 scale(float sx, float sy){
 		x *= sx;
 		y *= sy;

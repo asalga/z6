@@ -1,7 +1,12 @@
 package z6;
 
+import z6.Math.Vec2;
+
 public final class Utils {
 
+	// Reuse to reduce re-creating vectors in methods below.
+	private static Vec2 tempVec = new Vec2();
+	
 	private Utils() {
 	}
 
@@ -40,6 +45,23 @@ public final class Utils {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Is r1 completely inside r2 (overlapping counts as yes)
+	 * @param r1
+	 * @param r2
+	 * @return
+	 */
+	public static boolean isRectInsideRect(Rectangle r1, Rectangle r2){
+		if(r1.x >= r2.x && 
+		   r1.y >= r2.y && 
+		   r1.x + r1.w <= r2.x + r2.w &&
+		   r1.y + r1.h <= r2.y + r2.h){
+			return true;
+		}
+		return false;
+				
 	}
 
 	/**

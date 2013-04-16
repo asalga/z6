@@ -1,14 +1,18 @@
 package z6;
 
 import java.util.ArrayList;
+import z6.Math.Vec2;
 
 /**
- * TODO: fix deg_to_rad
+ * TODO:
+ * fix deg_to_rad
+ * allow getting hit
+ * 
  * 
  * @author asalga
  *
  */
-public class Ship implements Node{ //{, ICollidable {
+public class Ship implements Node, IBroadcaster, ICollidable {
 
 	private Vec2 position;
 	private Vec2 direction;
@@ -19,17 +23,20 @@ public class Ship implements Node{ //{, ICollidable {
 	private float speed;
 	private ArrayList<Node> children;
 	//private ArrayList<IGun> guns;
+	
+	private ArrayList<ISubscriber> subscribers;
 
 	//TransformNode child;
 
 	public Ship() {
 		//guns = new ArrayList<IGun>();
 		children = new ArrayList<Node>();
-
+		subscribers = new ArrayList<ISubscriber>();
+		
 		setSpeed(0);
 		setRotateSpeed(0);
 		rotation = 0f;
-		setPosition(Vec2.makeZeroVector());
+		setPosition(new Vec2(0, 0));
 		setPosition(Vec2.makeZeroVector());
 		setDirection(new Vec2(1,1));
 
@@ -40,6 +47,7 @@ public class Ship implements Node{ //{, ICollidable {
 		// child.addChild(test);
 	}
 
+	// TODO: fix me
 	public int getLayer() {
 		return 2;
 	}
@@ -51,9 +59,10 @@ public class Ship implements Node{ //{, ICollidable {
 	public Rectangle getBoundingRectangle() {
 		return new Rectangle(position.x - 16, position.y - 16, 32, 32);
 	}
-
-	//public void onCollision(ICollidable collider) {
-	//}
+	
+	public void onCollision(ICollidable collider) {
+		Renderer.println("ship was hit");
+	}
 
 	public void onCollision() {
 	}
@@ -74,11 +83,11 @@ public class Ship implements Node{ //{, ICollidable {
 			yPos = position.y;
 		}
 
-		Renderer.fill(128, 256);
+		//Renderer.fill(128, 64);
 		Renderer.translate(xPos, yPos);
 		Renderer.rotate(-rotation * 0.01745329238f);
 		
-		//Renderer.rect(-16,-16,32,32);
+		//Renderer.rect(-16,-16, 32, 32);
 		Renderer.image(new Tile(Constants.SHIP).getImage(), -16, -16);
 		Renderer.popMatrix();
 
@@ -150,6 +159,7 @@ public class Ship implements Node{ //{, ICollidable {
 			//	g.fire();
 			//}
 		}
+		notifySubscribers();
 	}
 
 	public void addChild(Node node) {
@@ -171,6 +181,24 @@ public class Ship implements Node{ //{, ICollidable {
 		//}
 	}
 
+	/**
+	 * 
+	 */ 
+	public void notifySubscribers(){
+		for(int i = 0; i < subscribers.size(); i++){
+			// TODO: check this
+			subscribers.get(i).updatePosition(this.position);
+		}
+	}
+	
+	public void addSubscriber(ISubscriber subscriber){
+		subscribers.add(subscriber);
+	}
+	
+	public void removeSubscriber(ISubscriber subscriber){
+		subscribers.remove(subscriber);
+	}
+	
 	public Vec2 getPosition() {
 		return position;
 		// return new PVector(position.x - width/2, position.y - height/2);

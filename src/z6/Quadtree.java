@@ -1,8 +1,20 @@
 package z6;
 
+import java.util.ArrayList;
 import processing.core.PApplet;
 
-/*
+/** Sparse Quadtree
+ * 
+ * TODO:
+ *  - Make getNumQuadrants O(1)
+ *  - Don't create empty quadrants just to test if node fits
+ * 
+ * Can any node hold data?
+ *  If yes, we can add nodes that are greater than the size of
+ *  a leaf node quadrant, but it will increase complexity slightly.
+ *  
+
+ *  
  * Selectively render parts of a tilegrid depending on the viewport position and dimensions.
  * When specifying the number of levels, we start at 1
  * Levels
@@ -15,63 +27,228 @@ import processing.core.PApplet;
  * 7 - 4096 leafs
  * 8 - 16,384 leafs
  * 9 - 65,536 leafs
+ * 
  * Should Quadtree contain map??
  */
 public class Quadtree {
-	private Octant root;
+	private Quadrant root;
 	private int maxLevels;
-	private Map gameMap;
 	private boolean debugOn;
-	private int numLeafsRendered;
 
+	// Prevent needing to traverse the entire tree to get these counts.
+	//private int numSprites;
+	private int numQuadrants;
+	private int numLeaves;
+	private int numSpritesInTree;
+	
+	// The number of tiles rendered in the last frame.
 	// A leaf node may have many tiles associated with it
 	private int numTilesRendered;
+	private int numLeafsRendered;
 
 	/**
 	 * 
 	 * 
 	 */
-	public Quadtree() {
-		root = null;
-		maxLevels = 0;
-		gameMap = null;
+	public Quadtree(int width, int height, int _maxLevels) {
+		
+		// replace with clamp?
+		if (_maxLevels < 1) {
+			maxLevels = 1;
+		} else {
+			maxLevels = _maxLevels;
+		}
+		
+		Rectangle rootBounds = new Rectangle(0, 0, width, height);
+		root = new Quadrant(rootBounds, 1);
+		
 		debugOn = false;
 		numLeafsRendered = 0;
 		numTilesRendered = 0;
+		
+		numSpritesInTree = 0;
+		numQuadrants = 0;
+		numLeaves = 0;
+	}
+	
+	/**
+	 * Returns the number of sprites in the tree in O(1) time.
+	 * 
+	 * @return the number of sprites inside the quadtree.
+	 * 
+	 */
+	public int getNumSprites(){
+		return numSpritesInTree;
+		//return root.getNumSpritesInChildren();
 	}
 
-	private class Octant {
-		int x, y, w, h;
+	/**
+	 * Traverse the tree and find any branches that do not hold
+	 * any leaf nodes and mark those as null to get GC'ed.
+	 */
+	public void prune(){
+		// First we need to get the latest count. This will fill
+		// in a value for each quadrant. Then find any quadrants with
+		// zero and get rid of those.
+		root.getNumSpritesInChildren();
+		root.prune();
+	}
+	
+	/**
+	 * 
+	 */
+	private class Quadrant {
+		Rectangle bounds;
 		int level;
 		boolean isLeaf;
-		Octant northEast, northWest, southEast, southWest;
-
-		public Octant(int x, int y, int w, int h, int level) {
+		boolean quadrantsSetup;
+		Quadrant northEast, northWest, southEast, southWest;
+		ArrayList <Node> nodes;
+		
+		int numSpritesInSubtree;
+		
+		/**
+		 * 
+		 * @param x
+		 * @param y
+		 * @param w
+		 * @param h
+		 * @param level
+		 */
+		public Quadrant(Rectangle bounds, int level){
 			northEast = northWest = southEast = southWest = null;
+			quadrantsSetup = false;
 			isLeaf = false;
 			this.level = level;
-			this.x = x;
-			this.y = y;
-			this.w = w;
-			this.h = h;
+			this.bounds = bounds.clone();
+			numSpritesInSubtree = 0;
+		}
+		
+		/**
+		 * TODO: comment
+		 */
+		public int getNumSpritesInChildren(){
+			numSpritesInSubtree = 0;
+			
+			// Base case, we reached a leaf node, set its count and
+			// pass it up to the calling quadrant.
+			if(isLeaf && nodes != null){
+				numSpritesInSubtree = nodes.size();
+				return nodes.size();
+			}
+			else{
+				if(northEast != null){
+					numSpritesInSubtree += northEast.getNumSpritesInChildren();
+				}
+				if(northWest != null){
+					numSpritesInSubtree += northWest.getNumSpritesInChildren();
+				}
+				if(southEast != null){
+					numSpritesInSubtree += southEast.getNumSpritesInChildren();
+				}
+				if(southWest != null){
+					numSpritesInSubtree += southWest.getNumSpritesInChildren();
+				}
+			}			
+			return numSpritesInSubtree;
 		}
 
-		/**
-		 * Draw the lines that delineate the nodes
-		 */
-		private void drawDebugLines() {
 
+		/**
+		 * 
+		 */
+		public int getNumQuadrants(){
+			int num = 0;
+			
+			if(isLeaf){
+				return 1;
+			}
+			
+			if(northEast != null){
+				num += northEast.getNumQuadrants();
+			}
+			
+			if(southEast != null){
+				num += southEast.getNumQuadrants();
+			}
+			
+			if(northWest != null){
+				num += northWest.getNumQuadrants();
+			}
+			
+			if(southEast != null){
+				num += southEast.getNumQuadrants();
+			}
+			
+			return 1 + num;
+		}
+
+		
+		/**
+		 * Visit each node, and if any of the children have count == 0, remove
+		 * 
+		 */
+		public void prune(){			
+			if(northEast != null){
+				if(northEast.numSpritesInSubtree == 0){
+					northEast = null;
+				}
+				else{
+					northEast.prune();
+				}
+			}
+			
+			if(northWest != null){
+				if(northWest.numSpritesInSubtree == 0){	
+					northWest = null;
+				}
+				else{
+					northWest.prune();
+				}
+			}			
+			
+			if(southEast != null){
+				if(southEast.numSpritesInSubtree == 0){
+					southEast = null;
+				}
+				else{
+					southEast.prune();
+				}
+			}
+			
+			if(southWest != null){
+				if(southWest.numSpritesInSubtree == 0){
+					southWest = null;
+				}
+				else{
+					southWest.prune();
+				}
+			}
+		}
+		
+		/** Draw the lines that delineate the nodes
+		 */
+		private void drawDebugLines(Rectangle viewport) {
+			if(Utils.testCollision(bounds, viewport) == false){
+				return;
+			}
+			
 			// We are drawing the lines that show the children,
 			// so if this actually doesn't have children, it dosen't make sense
 			// to draw the lines.
-			if (debugOn == false || isLeaf == true) {
+			if (debugOn == false){
 				return;
 			}
 
+			float x = bounds.x;
+			float y = bounds.y;
+			float w = bounds.w;
+			float h = bounds.h;
+			
 			Renderer.pushStyle();
-			Renderer.fill(0, 50 * level);
-			Renderer.textSize(150 - (level * 30));
-			Renderer.text("" + level, x + (w / 2), y + (h / 2));
+			//Renderer.fill(0, 50 * level);
+			//Renderer.textSize(150 - (level * 30));
+			//Renderer.text("" + level, x + (w / 2), y + (h / 2));
 
 			// Black, Red, Green, Blue, Grey, ...
 			switch (level) {
@@ -98,69 +275,121 @@ public class Quadtree {
 				break;
 			}
 
+			Renderer.noFill();
+			//Renderer.fill(33,66,99, 33);
+			
 			Renderer.strokeWeight(maxLevels - level);
 
 			// vertical lines that show the children
-			Renderer.line(x + (w / 2), y, x + (w / 2), y + h);
+			//Renderer.line(x + (w / 2), y, x + (w / 2), y + h);
 
+			Renderer.rect(x , y, w , h);
+			
 			// horizontal
-			Renderer.line(x, y + (h / 2), x + w, y + (h / 2));
+			//Renderer.line(x, y + (h / 2), x + w, y + (h / 2));
 
 			Renderer.popStyle();
 		}
 
-		/*
-		 * If this node is a leaf, find all the tiles that intersect with it and
+		/** If this node is a leaf, find all the tiles that intersect with it and
 		 * draw them. If this node is a parent, recursively draw the children.
 		 */
 		public void draw(Rectangle viewport) {
 
 			// If the viewport intersects with the node, we can need to draw it.
-			if (Utils.testCollision(viewport, new Rectangle(x, y, w, h))) {
-
-				// If this node is a leaf, we can render all the tiles that lay
-				// inside it.
+			if (Utils.testCollision(viewport, bounds)) {
+				// If this node is a leaf, we can render all the tiles that lay inside it.
 				if (isLeaf) {
 					numLeafsRendered++;
-
-					int tileColIndex = (int) x / Constants.TILE_SIZE;
-					int tileRowIndex = (int) y / Constants.TILE_SIZE;
-
-					int tileColXoffset = Constants.TILE_SIZE * tileColIndex;
-					int tileRowXoffset = Constants.TILE_SIZE * tileRowIndex;
-
-					for (int rowY = tileRowXoffset, rowIdx = tileRowIndex; rowY < y
-							+ h; rowY += Constants.TILE_SIZE, rowIdx++) {
-						for (int colX = tileColXoffset, colIdx = tileColIndex; colX < x
-								+ w; colX += Constants.TILE_SIZE, colIdx++) {
+					
+					if(nodes != null){
+						for(int i = 0; i < nodes.size(); i++){
+							nodes.get(i).render();
 							numTilesRendered++;
-							Tile tile = gameMap.getTile(colIdx, rowIdx);
-							if (tile != null) {
-								Renderer.strokeWeight(1);
-
-								// parent.rect(colX, rowY, 32, 32);
-								Renderer.image(tile.getImage(), colX, rowY);
-								// image(tile.getImage(), colX, rowY);
-							}
 						}
 					}
 				} else {
-					southEast.draw(viewport);
-					southEast.drawDebugLines();
+					
+					if(southEast != null){
+						southEast.draw(viewport);
+						southEast.drawDebugLines(viewport);
+					}
+					
+					if(southWest != null){
+						southWest.draw(viewport);
+						southWest.drawDebugLines(viewport);
+					}
 
-					southWest.draw(viewport);
-					southWest.drawDebugLines();
+					if(northWest != null){
+						northWest.draw(viewport);
+						northWest.drawDebugLines(viewport);
+					}
 
-					northWest.draw(viewport);
-					northWest.drawDebugLines();
-
-					northEast.draw(viewport);
-					northEast.drawDebugLines();
+					if(northEast != null){
+						northEast.draw(viewport);
+						northEast.drawDebugLines(viewport);
+					}
 				}
 			}
 		}
-
-		/*
+		
+		/** Insert a Node into the tree.
+		 * 
+		 * @param n
+		 * @param x
+		 * @param y
+		 */
+		public boolean insert(Node n){//, int nx, int ny){
+			int nx = (int)n.getPosition().x;
+			int ny = (int)n.getPosition().y;
+			
+			// If the node fits into this Quadrant.
+			if(Utils.isRectInsideRect(new Rectangle(n.getPosition().x, n.getPosition().y, 32, 32), bounds)){
+				if(isLeaf){
+					if(nodes == null){
+						nodes = new ArrayList<Node>();
+					}
+					nodes.add(n);
+					numSpritesInTree++;
+					return true;
+				}
+				else{
+					// If subdiving will result in this being a leaf...
+					
+					if(quadrantsSetup == false){
+						subdivide();
+					}
+					
+					// We just tried subdividing the node, but realized
+					// we reached the max depth, we need to add it to the leaf list.
+					if(isLeaf){
+						nodes = new ArrayList<Node>();
+						nodes.add(n);
+						numSpritesInTree++;
+						return true;
+					}
+					
+					if(northEast.insert(n)){//, nx, ny)){
+						return true;
+					}
+					
+					if(northWest.insert(n)){//, nx, ny)){
+						return true;
+					}
+					
+					if(southEast.insert(n)){//, nx, ny)){
+						return true;
+					}
+					
+					if(southWest.insert(n)){//, nx, ny)){
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		/**
 		 * Subdivide this node into 4 children.
 		 */
 		public void subdivide() {
@@ -171,40 +400,47 @@ public class Quadtree {
 				isLeaf = true;
 				return;
 			}
+			
+			float x = bounds.x;
+			float y = bounds.y;
+			float w = bounds.w;
+			float h = bounds.h;
+			
+			Rectangle northEastBounds = new Rectangle(x + w / 2, y, w / 2, h / 2);
+			Rectangle northWestBounds = new Rectangle(x, y, w / 2, h / 2);
+			Rectangle southEastBounds = new Rectangle(x + w / 2, y + h / 2, w / 2, h / 2);
+			Rectangle southWestBounds = new Rectangle(x, y + h / 2, w / 2, h / 2);
+			
+			northEast = new Quadrant(northEastBounds, level + 1);
+			northWest = new Quadrant(northWestBounds, level + 1);
+			southEast = new Quadrant(southEastBounds, level + 1);
+			southWest = new Quadrant(southWestBounds, level + 1);
 
-			northEast = new Octant(x + w / 2, y, w / 2, h / 2, level + 1);
-			northWest = new Octant(x, y, w / 2, h / 2, level + 1);
-			southWest = new Octant(x, y + h / 2, w / 2, h / 2, level + 1);
-			southEast = new Octant(x + w / 2, y + h / 2, w / 2, h / 2,
-					level + 1);
-
-			southEast.subdivide();
+			quadrantsSetup = true;
+			
+			// uncomment to create a full quadtree.
+			/*southEast.subdivide();
 			southWest.subdivide();
 			northEast.subdivide();
-			northWest.subdivide();
+			northWest.subdivide();*/
 		}
 	}
-
-	/*
-	 * filepath - maxLevels - must be >= 1
-	 */
-	public void load(Map gameMap, int maxLevels) { // String filepath, int
-													// maxLevels){
-		this.gameMap = gameMap;
-
-		// replace with clamp?
-		if (maxLevels < 1) {
-			this.maxLevels = 1;
-		} else {
-			this.maxLevels = maxLevels;
-		}
-
-		// Root node contains the entire grid
-		root = new Octant(0, 0, Constants.MAP_WIDTH_IN_TILES
-				* Constants.TILE_SIZE, Constants.MAP_HEIGHT_IN_TILES
-				* Constants.TILE_SIZE, 1);
-		root.subdivide();
+	
+	/**
+	 * Insert a node into the tree.
+	 * 
+	 * @param n
+	 * @param x
+	 * @param y
+	 * 
+	 * @return true if node was inserted into the tree.
+	 * A Node would not be inserted if it didn't collide with the tree.
+ 	 */
+	public boolean insert(Node n){//, int x, int y){
+		return root.insert(n);//, x, y);
 	}
+	
+	/*public void setup(int maxLevels, int width, int height) {}*/
 
 	/*
 	 * Get the number of leaf nodes rendered on the last frame.
@@ -213,13 +449,23 @@ public class Quadtree {
 		return numLeafsRendered;
 	}
 
-	/*
-	 * Get the number of tiles drawn on the last frame.
+	/**
+	 * It can be useful to know how many tiles were actually
+	 * rendered in the last frame.
 	 */
 	public int getNumTilesRendered() {
 		return numTilesRendered;
 	}
-
+	
+	/**
+	 * Quadrant can be either a leaf or a node that contains branches to
+	 * more quadrants.
+	 * @return
+	 */
+	public int getNumQuadrants(){
+		return root.getNumQuadrants();
+	}
+	
 	/*
 	 * If debug is on, lines showing nodes will be rendered.
 	 */
@@ -228,22 +474,18 @@ public class Quadtree {
 	}
 
 	/**
-	 * 
+	 * Draws only the nodes that intersect with the viewport.
 	 */
 	public void draw(Rectangle viewport) {
+
+		// Keep track of these for debugging purposes.
 		numLeafsRendered = 0;
 		numTilesRendered = 0;
 
 		root.draw(viewport);
 
-		if (Keyboard.isKeyDown(Keyboard.R)) {
-			debug(true);
-		} else {
-			debug(false);
-		}
-
 		if (debugOn) {
-			root.drawDebugLines();
+			root.drawDebugLines(viewport);
 		}
 	}
 }

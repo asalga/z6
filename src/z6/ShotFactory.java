@@ -1,19 +1,21 @@
 package z6;
 
 /**
- * 
- * @author asalga
- * 
+ * Cannon
+ * MiniGun
+ * Laser
+ * Plasma
+ * Missile
+ * Pulse
  */
 public class ShotFactory {
 
-	private ShotFactory() {
-	}
+	private ShotFactory() {}
 
 	/**
 	 * 
 	 * @param id
-	 * @return
+	 * @return IShot shot
 	 */
 	public static IShot create(int id) {
 		IShot shot = null;
@@ -22,11 +24,13 @@ public class ShotFactory {
 		case Constants.CANNON_SHOT_ID:
 			shot = new CannonShot();
 			break;
-		/*
-		 * case Constants.PLASMA_SHOT_ID: shot = new PlasmaShot(); break;
-		 */
-		default:
-			// println("fix me");
+			
+		case Constants.MINIGUN_SHOT_ID:
+			shot = new MiniGunShot();
+			break;
+		
+		case Constants.LASER_SHOT_ID:
+			shot = new LaserShot();
 			break;
 		}
 		

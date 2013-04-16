@@ -1,5 +1,7 @@
 package z6;
 
+import z6.Math.Vec2;
+
 public class NullGun implements IGun{
   public void fire(){}
   public void setFireRatePerSec(float shotsPerSecond){}
@@ -11,8 +13,13 @@ public class NullGun implements IGun{
   public void setActive(boolean active){}
   public int getID(){return Constants.NULL_GUN_ID;}
   
-  //remove?
+  public void setShotSpeed(float shotSpeed){}
+  
   public void setShotType(int shotType){}
+  public float getShotSpeed(){return 0f;}
+  
+  public void setFireBehaviour(FireBehaviour fireBehaviour){}
+  public void setTarget(Node _target){}
   
   /*
   public void setPosition(PVector pos){

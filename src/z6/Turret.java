@@ -1,6 +1,8 @@
 package z6;
 
 import java.util.ArrayList;
+import z6.Constants;
+import z6.Math.Vec2;
 
 /**
  * TODO: fix col,row / position
@@ -11,10 +13,12 @@ import java.util.ArrayList;
  * turn machine gun towards user
  * Vector userPosition
  */
-public class Turret implements Node {// , ICollidable{
+public class Turret implements Node, ISubscriber {// , ICollidable{
 
 	ArrayList<Node> nodes;
 	ArrayList<IGun> guns;
+	
+	Vec2 shipPos;
 
 	Node parent;
 	Node target;
@@ -23,11 +27,15 @@ public class Turret implements Node {// , ICollidable{
 	Vec2 position;
 	int col;
 	int row;
-	
+
 	int sightRadius;
 
 	int health;
 	boolean isAlive;
+
+	// Only turrets that were rendered on screen can successfully have
+	// setTarget called on them.
+	public boolean renderedLastFrame;
 
 	public Turret() {
 		guns = new ArrayList<IGun>();
@@ -37,10 +45,13 @@ public class Turret implements Node {// , ICollidable{
 
 		position = new Vec2(0, 0);
 		col = row = 0;
-		sightRadius = Constants.TILE_SIZE * 8;
+		sightRadius = Constants.TILE_SIZE * 6;
 
 		isAlive = true;
 		health = 100;
+
+		shipPos = new Vec2(0,0);
+		renderedLastFrame = false;
 	}
 
 	// TODO: Fix this
@@ -53,39 +64,37 @@ public class Turret implements Node {// , ICollidable{
 
 	/**
 	 */
-	public void setTarget(Node target) {
+	public void setTarget(Node _target) {
+		 
 		if (isAlive == false) {
 			return;
 		}
 
-		Vec2 targetToGun = Vec2.sub(target.getPosition(), new Vec2(position.x
+		Vec2 targetPos = _target.getPosition().clone();
+
+		// HACK: fix this
+		targetPos.x -= Constants.TILE_SIZE/2;
+		targetPos.y -= Constants.TILE_SIZE/2;
+
+		Vec2 targetToGun = Vec2.sub(targetPos, new Vec2(position.x
 				* Constants.TILE_SIZE, position.y * Constants.TILE_SIZE));
 
 		float distance = targetToGun.magnitude();
 		if (distance <= getSightRange()) {
-			this.target = target;
+			this.target = _target;
 
 			for (IGun g : guns) {
-				Vec2 targetPos = target.getPosition().clone();
-				targetPos = Vec2.sub(targetPos,
-						new Vec2(position.x * Constants.TILE_SIZE, position.y
-								* Constants.TILE_SIZE));
+				//Vec2 targetPos = target.getPosition().clone();
 
-				g.setDirection(targetPos);
-				g.fire();
+				//targetPos = Vec2.sub(targetPos,
+				//	new Vec2(position.x * Constants.TILE_SIZE, position.y
+				//		* Constants.TILE_SIZE));
+
+				g.setTarget(this.target);
+				g.setDirection(targetToGun.clone());
 			}
-			/*
-			 * Node gunNode = nodes.get(0); if(gunNode != null){ IGun gun =
-			 * (IGun)gunNode;
-			 * 
-			 * PVector targetPos = cloneVec(target.getPosition()); targetPos =
-			 * PVector.sub(targetPos, new PVector(position.x * TILE_SIZE,
-			 * position.y * TILE_SIZE));
-			 * 
-			 * gun.setDirection(targetPos); gun.fire(); }
-			 */
 		} else {
-			target = null;
+			this.target = null;
 		}
 	}
 
@@ -96,19 +105,31 @@ public class Turret implements Node {// , ICollidable{
 	public void setLayer(int layerID) {
 		// print("todo");
 	}
+	
+	/**
+	 * 
+	 */
+	public void updatePosition(Vec2 _shipPos){
+		shipPos = _shipPos.clone();
+	}
 
+	/**
+	 * 
+	 */
 	public void render() {
+		renderedLastFrame = true;
+
 		if (isAlive) {
 
 			Renderer.pushStyle();
 			Renderer.noStroke();
-			Renderer.fill(128, 0, 0);
+			Renderer.fill(128, 0, 0,255);
 			Renderer.rect(position.x * Constants.TILE_SIZE, position.y
 					* Constants.TILE_SIZE, Constants.TILE_SIZE,
 					Constants.TILE_SIZE);
-			//Renderer.fill(0, 0, 0);
+
 			//Renderer.ellipse(position.x * Constants.TILE_SIZE + 16, position.y
-			//		* Constants.TILE_SIZE + 16, 5, 5);
+				//	* Constants.TILE_SIZE + 16, 5, 5);
 
 			for (int i = 0; i < nodes.size(); i++) {
 				nodes.get(i).render();
@@ -119,11 +140,16 @@ public class Turret implements Node {// , ICollidable{
 				guns.get(i).render();
 			}
 
-			// strokeWeight(1);
-			// noFill();
-			// stroke(255, 0, 0);
-			// ellipse(position.x * TILE_SIZE + TILE_SIZE/2, position.y *
-			// TILE_SIZE + TILE_SIZE/2, sightRadius * 2, sightRadius * 2);
+			// Draw sight Radius
+			if(false){
+			Renderer.noFill();
+			Renderer.stroke(255, 0, 0);
+			//Renderer.noStroke();
+			//Renderer.fill(255, 0, 0, 64);
+			Renderer.ellipse(position.x * Constants.TILE_SIZE + Constants.TILE_SIZE/2, position.y *
+					Constants.TILE_SIZE + Constants.TILE_SIZE/2, sightRadius * 2, sightRadius * 2);
+			}
+			
 			Renderer.popStyle();
 		} else {
 			Renderer.pushStyle();
@@ -149,6 +175,15 @@ public class Turret implements Node {// , ICollidable{
 	 * that it launched.
 	 */
 	public void update(float deltaTime) {
+
+		if(renderedLastFrame){
+			renderedLastFrame = false;
+		}
+		else{
+			target = null;
+		}
+
+
 		// update guns
 		for (Node node : nodes) {
 			node.update(deltaTime);
@@ -160,6 +195,12 @@ public class Turret implements Node {// , ICollidable{
 			//guns.get(i).fire();
 			guns.get(i).update(deltaTime);
 		}
+
+		if(target != null){
+			for (int i = 0; i < guns.size(); i++) {
+				guns.get(i).fire();
+			}
+		}
 	}
 
 	/*
@@ -169,7 +210,7 @@ public class Turret implements Node {// , ICollidable{
 	}
 
 	/*
-	  */
+	 */
 	public void setSightRadiusInPx(int sightRad) {
 		if (sightRad >= 0) {
 			sightRadius = sightRad;
@@ -177,7 +218,7 @@ public class Turret implements Node {// , ICollidable{
 	}
 
 	/*
-	  */
+	 */
 	public void addChild(Node node) {
 		nodes.add(node);
 	}
@@ -190,9 +231,7 @@ public class Turret implements Node {// , ICollidable{
 		if (isAlive == false) {
 			return;
 		}
-		
-		//Renderer.println("adding gun");
-		
+
 		guns.add(gun);
 		((Node) gun).setParent((Node) this);
 		((Node) gun).setPosition(new Vec2(16, 16));

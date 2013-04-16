@@ -1,0 +1,25 @@
+// MINIs
+
+
+Get scene to manage bullets
+
+
+// - Saturday
+//  -> Figure out a way to remove need for "Constants"
+//
+
+// Dying, Dead
+// Rendering, no collision
+// Rendering, collision
+// Rendering, 
+// Dead - not rendered, needs to be removed from game
+//
+
+
+// - Clean setTarget code
+// - Add ship shooting
+// - Figure out how gun works
+// - Fix creating empty cells in quadtrie
+// - Fix GC problems
+// - Should guns have range?
+//   - Turret with 3 guns each with range.
