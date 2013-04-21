@@ -5,7 +5,7 @@ import z6.Math.Vec2;
 /*
  * TODO: add tags?
  */
-public class MiniGunShot implements IShot{ // implements ICollidable{
+public class MiniGunShot implements IShot, ICollidable{
 	private final float DEATH_AGE_IN_SEC = 3.0f;
 	private final int DIAMETER = 2;
 
@@ -17,6 +17,9 @@ public class MiniGunShot implements IShot{ // implements ICollidable{
 	// alive, dying, dead
 	private float lifeTime;
 	private int id;
+	
+	private float power;
+	private boolean collidable;
 
 	// who shot this bullet? any ship cannot harm themselves.
 
@@ -27,10 +30,20 @@ public class MiniGunShot implements IShot{ // implements ICollidable{
 		lifeTime = 0;
 		collisionLayer = -1;
 		id = ID.next();
+		power = 1;
+		collidable = true;
 	}
 
 	public int getID() {
 		return id;
+	}
+	
+	public boolean isCollidable(){
+		return collidable;
+	}
+	
+	public float getPower(){
+		return power;
 	}
 
 	public void setVelocity(Vec2 v) {
@@ -47,6 +60,10 @@ public class MiniGunShot implements IShot{ // implements ICollidable{
 
 	public boolean isAlive() {
 		return isAlive;
+	}
+	
+	public int getObjectType(){
+		return 1;
 	}
 
 	public void update(float deltaTime) {
@@ -78,7 +95,6 @@ public class MiniGunShot implements IShot{ // implements ICollidable{
 	 * 
 	 */
 	public void render() {
-		
 		Renderer.pushStyle();
 		Renderer.strokeWeight(1);
 		Renderer.noStroke();
@@ -94,13 +110,13 @@ public class MiniGunShot implements IShot{ // implements ICollidable{
 	}
 
 	public String toString() {
-		return "pos(" + position.x + ", " + position.y + ")" + " vel("
-				+ velocity.x + ", " + velocity.y + ")";
+		return  "pos(" + position.x + ", " + position.y + ") " +
+				"vel(" + velocity.x + ", " + velocity.y + ")";
 	}
 
-	// public void onCollision(ICollidable collider){
-	// isAlive = false;
-	// }
+	public void onCollision(ICollidable collider){
+		isAlive = false;
+	 }
 
 	public Rectangle getBoundingRectangle() {
 		return new Rectangle(position.x, position.y, DIAMETER / 2, DIAMETER / 2);

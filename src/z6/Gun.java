@@ -29,15 +29,13 @@ public class Gun implements IGun, Node {
 	private float shotSpeed;
 	
 	private FireBehaviour fireBehaviour;
-	
-	//private int shotType;
 
 	private int bulletCollisionLayer;
 
 	private Node target;
 	private Node parent;
 
-	// private ArrayList<CannonShot> bullets;
+	//private ArrayList<CannonShot> bullets;
 	//private ArrayList<IShot> bullets;
 
 	public Gun() {
@@ -57,8 +55,6 @@ public class Gun implements IGun, Node {
 		canFire = true;
 
 		bulletCollisionLayer = -1;
-
-		//shotType = Constants.NULL_SHOT_ID;
 	}
 
 	/*
@@ -161,6 +157,7 @@ public class Gun implements IGun, Node {
 	 */
 	public void update(float deltaTime) {
 		accumDelay += deltaTime;
+	
 		if (accumDelay >= delayPerShot) {
 			canFire = true;
 		}
@@ -199,6 +196,10 @@ public class Gun implements IGun, Node {
 
 	public void setLayer(int layerID) {
 		bulletCollisionLayer = layerID;
+	}
+	
+	public int getLayer(){
+		return bulletCollisionLayer;
 	}
 
 	/*

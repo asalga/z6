@@ -1,51 +1,79 @@
 package z6;
 
 import z6.Math.Vec2;
-//import z6.Math.Vec2; // redundant import statements are ignored.
-
 
 /*
  * TODO: add tags?
  */
-public class LaserShot implements IShot, ISubscriber {// implements ICollidable{
-	private final float DEATH_AGE_IN_SEC = 0.1f;
-	private final int DIAMETER = 2;
+public class LaserShot implements IShot, ISubscriber, ICollidable{
 
-	private int collisionLayer;
-
+	// Rendering components
+	private final int DIAMETER = 2;	
 	private Vec2 position;
 	private Vec2 originShot;
-	
-	private boolean isAlive;
-	
-	// alive, dying, dead
-	
-	// TODO: figure out lifetime...
-	private float lifeTime;
-	private int id;
 
+	// Age
+	private final float DEATH_AGE_IN_SEC = 0.2f;
+	private float lifeTime;
+	private boolean isAlive;
+
+	private float power;
+	
+	private int id;
+	
+	private boolean collidable;
+	private int collisionLayer;
+	
 	public void updatePosition(Vec2 _targetPos){
 		position = _targetPos.clone();
 	}
 	
 	public LaserShot() {
+		Renderer.println("laser created");
 		setPosition(new Vec2(0, 0));
 		isAlive = true;
 		lifeTime = 0;
 		collisionLayer = -1;
 		id = ID.next();
 		originShot = new Vec2();
+		power = 2f;
+		collidable = true;
 	}
 
 	public int getID() {
 		return id;
 	}
-
-	// remove this?
-	public void setVelocity(Vec2 v) {
-		//velocity = v;
+	
+	/**
+	 * 
+	 */
+	public float getPower(){
+		return power;
 	}
-
+	
+	public int getObjectType(){
+		return 1;
+	}
+	
+	/**
+	 * Once the laser hit something, we still want it to be rendered,
+	 * just not collide with anything else.
+	 */
+	public void onCollision(ICollidable collider){
+		// keep isAlive to true
+		collidable = false;
+	}
+	
+	public boolean isCollidable(){
+		return collidable;
+	}
+	
+	/**
+	 * Do nothing since the laser is created at the target position
+	 * and then dies.
+	 */
+	public void setVelocity(Vec2 v) {}
+	
 	public void setPosition(Vec2 p) {
 		position = p;
 	}
@@ -70,7 +98,6 @@ public class LaserShot implements IShot, ISubscriber {// implements ICollidable{
 		if( Vec2.magnitude(position, originShot) > 200){
 			isAlive = false;
 		}
-		
 		
 		lifeTime += deltaTime;
 
@@ -103,8 +130,15 @@ public class LaserShot implements IShot, ISubscriber {// implements ICollidable{
 		
 		// Draw a line from the ship the laser shot is observing and
 		// the original location from where it was shot.
+		
 		Renderer.pushStyle();
-		Renderer.stroke(32, 16, 192);
+		Renderer.stroke(255);
+		Renderer.strokeWeight(4);
+		Renderer.line(originShot.x, originShot.y, position.x, position.y);
+		Renderer.popStyle();
+		
+		Renderer.pushStyle();
+		Renderer.stroke(32, 16, 255);
 		Renderer.strokeWeight(2);
 		Renderer.line(originShot.x, originShot.y, position.x, position.y);
 		Renderer.popStyle();
@@ -119,10 +153,6 @@ public class LaserShot implements IShot, ISubscriber {// implements ICollidable{
 	public String toString() {
 		return "pos(" + position.x + ", " + position.y + ")";
 	}
-
-	// public void onCollision(ICollidable collider){
-	// isAlive = false;
-	// }
 
 	public Rectangle getBoundingRectangle() {
 		return new Rectangle(position.x, position.y, DIAMETER / 2, DIAMETER / 2);

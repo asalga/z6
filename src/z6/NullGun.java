@@ -1,3 +1,7 @@
+/**
+ * REMOVE THIS?
+ */
+
 package z6;
 
 import z6.Math.Vec2;
@@ -6,7 +10,10 @@ public class NullGun implements IGun{
   public void fire(){}
   public void setFireRatePerSec(float shotsPerSecond){}
   public void setTag(int tag){}
+  
+  public int getLayer(){return -1;}
   public void setLayer(int layerID){}
+  
   public void update(float deltaTimeInSeconds){}
   public void render(){}
   public void setDirection(Vec2 direction){}

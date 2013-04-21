@@ -22,14 +22,15 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 
 	private float speed;
 	private ArrayList<Node> children;
-	//private ArrayList<IGun> guns;
+	private ArrayList<IGun> guns;
 	
 	private ArrayList<ISubscriber> subscribers;
 
+	private float health;
 	//TransformNode child;
 
 	public Ship() {
-		//guns = new ArrayList<IGun>();
+		guns = new ArrayList<IGun>();
 		children = new ArrayList<Node>();
 		subscribers = new ArrayList<ISubscriber>();
 		
@@ -39,6 +40,8 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 		setPosition(new Vec2(0, 0));
 		setPosition(Vec2.makeZeroVector());
 		setDirection(new Vec2(1,1));
+		
+		health = 100f;
 
 		//child = new TransformNode();
 		// child.setPosition(scaleVec(getUpVector(), 5));
@@ -52,19 +55,35 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 		return 2;
 	}
 
+	public int getObjectType(){
+		return 2;
+	}
+	
 	public void setLayer(int layerID) {
-
+	}
+	
+	public boolean isCollidable(){
+		return true;
 	}
 
 	public Rectangle getBoundingRectangle() {
 		return new Rectangle(position.x - 16, position.y - 16, 32, 32);
 	}
 	
-	public void onCollision(ICollidable collider) {
-		Renderer.println("ship was hit");
-	}
+	public void onCollision(ICollidable collider) {	
+		if(collider.getObjectType() == 1){
+			IShot shot = (IShot)collider;
+			float power = shot.getPower();
+			
+			health -= power;
 
-	public void onCollision() {
+			
+			
+			if(health <= 0){
+				 health = 0;
+				// destroy();
+			 }			
+		}		
 	}
 
 	public void render() {
@@ -142,9 +161,9 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 			setRotateSpeed(0f);
 		}
 
-		//for (IGun g : guns) {
-		//	g.update(deltaTime);
-		//}
+		for (IGun g : guns) {
+			g.update(deltaTime);
+		}
 
 		position.x += speed * deltaTime * Math.sin(rotation * 0.01745329238f);// direction.x;
 		position.y += speed * deltaTime * Math.cos(rotation * 0.01745329238f);// direction.y;
@@ -155,9 +174,11 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 				* 0.01745329238f)));
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-			//for (IGun g : guns) {
-			//	g.fire();
-			//}
+			for (IGun g : guns) {
+				
+			//	Renderer.println("firing all things");
+				g.fire();
+			}
 		}
 		notifySubscribers();
 	}
@@ -207,12 +228,22 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 	public void setSpeed(float speed) {
 		this.speed = speed;
 	}
+	
+	public int getHealth(){
+		return (int)health;
+	}
 
+	/**
+	 * 
+	 * @param gun
+	 */
 	public void addGun(IGun gun) {
-		/*IGun g = gun;
+		Renderer.println("adding gun to ship");
+		
+		IGun g = gun;
 		guns.add(gun);
 		((Node) gun).setParent((Node) this);
-		((Node) gun).setPosition(getZeroVector());
+		((Node) gun).setPosition(new Vec2(0, 0));
 
 		g.setLayer(1);
 

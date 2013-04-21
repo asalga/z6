@@ -13,7 +13,7 @@ import z6.Math.Vec2;
  * turn machine gun towards user
  * Vector userPosition
  */
-public class Turret implements Node, ISubscriber {// , ICollidable{
+public class Turret implements Node, ISubscriber, ICollidable{
 
 	ArrayList<Node> nodes;
 	ArrayList<IGun> guns;
@@ -62,6 +62,10 @@ public class Turret implements Node, ISubscriber {// , ICollidable{
 		this.row = row;
 	}
 
+	public int getObjectType(){
+		return 2;
+	}
+	
 	/**
 	 */
 	public void setTarget(Node _target) {
@@ -91,7 +95,7 @@ public class Turret implements Node, ISubscriber {// , ICollidable{
 				//		* Constants.TILE_SIZE));
 
 				g.setTarget(this.target);
-				g.setDirection(targetToGun.clone());
+				//g.setDirection(targetToGun.clone());
 			}
 		} else {
 			this.target = null;
@@ -128,6 +132,27 @@ public class Turret implements Node, ISubscriber {// , ICollidable{
 					* Constants.TILE_SIZE, Constants.TILE_SIZE,
 					Constants.TILE_SIZE);
 
+			if(target != null){
+				
+				Renderer.stroke(0);
+				Renderer.strokeWeight(3);
+				//Renderer.println("" + position);
+				//Renderer.println("" + target.getPosition());
+				
+				Vec2 gunToTarget = new Vec2(
+						target.getPosition().x -
+						position.x * Constants.TILE_SIZE + 16,
+						
+						target.getPosition().y -
+						position.y * Constants.TILE_SIZE + 16);
+				gunToTarget.normalize();
+				gunToTarget.scale(5);
+				
+				Renderer.line(	position.x * Constants.TILE_SIZE + 16, 
+								position.y * Constants.TILE_SIZE + 16,
+								position.x * Constants.TILE_SIZE + 16 + gunToTarget.x, 
+								position.y * Constants.TILE_SIZE + 16 + gunToTarget.y);				
+			}
 			//Renderer.ellipse(position.x * Constants.TILE_SIZE + 16, position.y
 				//	* Constants.TILE_SIZE + 16, 5, 5);
 
@@ -141,7 +166,7 @@ public class Turret implements Node, ISubscriber {// , ICollidable{
 			}
 
 			// Draw sight Radius
-			if(false){
+			if(true){
 			Renderer.noFill();
 			Renderer.stroke(255, 0, 0);
 			//Renderer.noStroke();
@@ -168,6 +193,10 @@ public class Turret implements Node, ISubscriber {// , ICollidable{
 
 	public int getLayer() {
 		return 1;
+	}
+	
+	public boolean isCollidable(){
+		return true;
 	}
 
 	/*
@@ -270,10 +299,19 @@ public class Turret implements Node, ISubscriber {// , ICollidable{
 				Constants.TILE_SIZE, Constants.TILE_SIZE);
 	}
 
-	/*
-	 * public void onCollision(ICollidable collidable){ //de
-	 * println("something hit turret"); //destroy();
-	 * 
-	 * health -= 25; if(health <= 0){ health = 0; destroy(); } }
-	 */
+	public void onCollision(ICollidable collidable){
+		
+		if(collidable.getObjectType() == 1){
+			Renderer.println("something hit turret");
+			
+			IShot shot = (IShot)collidable;
+			float power = shot.getPower();
+			health -= power;
+			
+			if(health <= 0){
+				 health = 0;
+				 destroy();
+			 }			
+		}
+	}
 }

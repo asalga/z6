@@ -2,8 +2,10 @@ package z6;
 
 import z6.Math.Vec2;
 
+/**
+ * 
+ */
 public interface IShot{
-  public Rectangle getBoundingRectangle();
   public int getID();
   public void setVelocity(Vec2 v);  
   public void setPosition(Vec2 pos);
@@ -14,6 +16,9 @@ public interface IShot{
   public int getLayer();
   public void render();
   public String toString();
+  public float getPower();
+  
+  //public Rectangle getBoundingRectangle();
   //public void onCollision(ICollidable col);
   //public void Destroy();
 }

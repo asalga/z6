@@ -17,38 +17,27 @@ public final class TurretFactory {
 
 		Turret turret = new Turret();
 
+		IGun gun = new Gun();
+		gun.setLayer(2);
+
 		switch (id) {
 			case Constants.CANNON_GUN_ID: {
-				
-				IGun gun = new Gun();
 				//gun.setShotType(Constants.CANNON_SHOT_ID);
-				
 				Renderer.println("Fix me");
-				
-				gun.setShotSpeed(300);
-				turret.addGun(gun);
-	
+				gun.setShotSpeed(10);
 				//IGun cannonGun = new CannonGun(); turret.addGun(cannonGun);
 			}break;
 			
 			case Constants.MINIGUN_GUN_ID:{
-				IGun gun = new Gun();
-				gun.setShotSpeed(450);
-				gun.setFireRatePerSec(15);
-				
-				//gun.setShotType(Constants.MINIGUN_SHOT_ID);
-				FireBehaviour miniGunFireBehaviour = new MinigunFireBehaviour();
-				gun.setFireBehaviour(miniGunFireBehaviour);
-				turret.addGun(gun);
+				gun.setShotSpeed(150);
+				gun.setFireRatePerSec(20);
+				gun.setFireBehaviour(new MinigunFireBehaviour());
+				//turret.addGun(gun);
 			};break;
 			
 			case Constants.LASER_GUN_ID:{
-				IGun gun = new Gun();
-				gun.setFireRatePerSec(1);
-				
-				//gun.setShotType(Constants.MINIGUN_SHOT_ID);
-				FireBehaviour laserFireBehaviour = new LaserFireBehaviour();
-				gun.setFireBehaviour(laserFireBehaviour);
+				gun.setFireRatePerSec(0.5f);
+				gun.setFireBehaviour(new LaserFireBehaviour());
 				
 				Node gunNode = (Node)gun;
 				gunNode.setParent(turret);
@@ -60,6 +49,9 @@ public final class TurretFactory {
 				Renderer.println("fix me in turret factory:" + id);
 			};break;
 		}
+
+		turret.addGun(gun);
+		
 		return turret;
 	}
 }

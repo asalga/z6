@@ -5,7 +5,7 @@ import z6.Math.Vec2;
 /*
  * TODO: add tags?
  */
-public class CannonShot implements IShot {// implements ICollidable{
+public class CannonShot implements IShot, ICollidable{
 	private final float DEATH_AGE_IN_SEC = 3.0f;
 	private final int DIAMETER = 6;
 
@@ -18,6 +18,9 @@ public class CannonShot implements IShot {// implements ICollidable{
 	// alive, dying, dead
 	private float lifeTime;
 	private int id;
+	
+	private float power;
+	private boolean collidable;
 
 	/**
 	 * 
@@ -29,14 +32,24 @@ public class CannonShot implements IShot {// implements ICollidable{
 		lifeTime = 0;
 		collisionLayer = -1;
 		id = ID.next();
+		power = 2;
+		collidable = true;
 	}
 
 	public int getID() {
 		return id;
 	}
+	
+	public boolean isCollidable(){
+		return collidable;
+	}
 
 	public Vec2 getPosition() {
 		return position;
+	}
+	
+	public float getPower(){
+		return power;
 	}
 	
 	
@@ -99,9 +112,13 @@ public class CannonShot implements IShot {// implements ICollidable{
 				+ velocity.x + ", " + velocity.y + ")";
 	}
 
-	// public void onCollision(ICollidable collider){
-	// isAlive = false;
-	// }
+	public void onCollision(ICollidable collider){
+		isAlive = false;
+	}
+	
+	public int getObjectType(){
+		return 1;
+	}
 
 	public Rectangle getBoundingRectangle() {
 		return new Rectangle(position.x, position.y, DIAMETER / 2, DIAMETER / 2);

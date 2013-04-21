@@ -2,7 +2,6 @@ package z6;
 
 /**
  * 
- * @author asalga
  * 
  */
 public final class Constants {
