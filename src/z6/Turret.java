@@ -302,10 +302,11 @@ public class Turret implements Node, ISubscriber, ICollidable{
 	public void onCollision(ICollidable collidable){
 		
 		if(collidable.getObjectType() == 1){
-			Renderer.println("something hit turret");
-			
 			IShot shot = (IShot)collidable;
 			float power = shot.getPower();
+			
+			//Renderer.println("turret hit with power: " + shot.getPower());
+			
 			health -= power;
 			
 			if(health <= 0){

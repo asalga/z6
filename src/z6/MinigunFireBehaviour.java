@@ -19,14 +19,10 @@ public class MinigunFireBehaviour implements FireBehaviour{
 	}
 	
 	public void Fire(Gun gun){
-		
-		// In the majority of the cases, we create a firebehaviour
-		
 		IShot shot = ShotFactory.create(Constants.MINIGUN_SHOT_ID);
-		// shot.setLayer(bulletCollisionLayer);
-		//Vec2 dir = gun.getDirection();
+
+		target = gun.getTarget();
 		
-		//
 		if(target != null){
 		
 			Vec2 targetPos = target.getPosition().clone();
@@ -46,10 +42,11 @@ public class MinigunFireBehaviour implements FireBehaviour{
 			shot.setVelocity(bulletVelocity);
 		}
 		else{
-			shot.setVelocity(new Vec2(0, 100));
+			Vec2 dir = gun.getDirection();
+			Vec2 bulletVelocity = Vec2.scale(dir, gun.getShotSpeed());
+			shot.setVelocity(bulletVelocity);
 		}
 		
-		Renderer.println("asdF");
 		shot.setPosition(gun.getPosition());
 		shot.setLayer(gun.getLayer());
 		Z6.AddBullet(shot);

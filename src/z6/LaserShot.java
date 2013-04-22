@@ -29,7 +29,6 @@ public class LaserShot implements IShot, ISubscriber, ICollidable{
 	}
 	
 	public LaserShot() {
-		Renderer.println("laser created");
 		setPosition(new Vec2(0, 0));
 		isAlive = true;
 		lifeTime = 0;

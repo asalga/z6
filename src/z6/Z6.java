@@ -166,22 +166,27 @@ public class Z6 extends PApplet {
 		Renderer.println("" + spriteQuadtrie.getNumSprites());
 		Renderer.println("quadrants after prune: " + spriteQuadtrie.getNumQuadrants());
 		
-		
-		
 		ship = new Ship();
 		ship.setPosition(new Vec2(256 * 1, 256 * 1));
 		
+		
+		//
 		IGun miniGun = new Gun();
-		miniGun.setFireBehaviour(new MinigunFireBehaviour());
+		
+		FireBehaviour fb = new MinigunFireBehaviour();
+		//fb.setPower(10);
+		miniGun.setFireBehaviour(fb);
 		miniGun.setLayer(1);
+		miniGun.setShotSpeed(450);
+		miniGun.setFireRatePerSec(10);
 		ship.addGun(miniGun);
 		
-		IGun laserGun = new Gun();
+		/*IGun laserGun = new Gun();
 		laserGun.setFireBehaviour(new ShipLaserFireBehaviour());
 		laserGun.setLayer(1);
 		laserGun.setTarget(turrets.get(0));
-		ship.addGun(laserGun);
-
+		ship.addGun(laserGun);*/
+		
 		collidables.add(ship);
 		
 		int numParticles = Utils.getRandomInt(4, 5);
@@ -236,8 +241,7 @@ public class Z6 extends PApplet {
 				collidables.add(t);
 			}
 		}
-		
-		debug.addString("# collidable turrets" + collidables.size());
+		//debug.addString("# collidable turrets" + collidables.size());
 		
 
 
@@ -264,7 +268,6 @@ public class Z6 extends PApplet {
 		// Update user's ship
 		ship.update(deltaTime);
 		
-		debug.addString(" "+ bullets.size());
 		for(int obj = 0; obj < collidables.size(); obj++){
 			
 			for(int b = 0; b < bullets.size(); b++){
@@ -278,8 +281,6 @@ public class Z6 extends PApplet {
 				if(c.isCollidable() == false){
 					continue;
 				}
-				
-				//Renderer.println("bullet: "+ c.getLayer());
 				//Renderer.println("ship/turret: " + collidables.get(ct).getLayer());
 				
 				if (c.getLayer() != collidables.get(obj).getLayer()){
@@ -291,8 +292,6 @@ public class Z6 extends PApplet {
 					tc.onCollision(c);
 					c.onCollision(tc);
 				 }
-				 
-		        //Renderer.println("" + collidables.size());
 				//Rectangle r2 =  bullets.get(i).getBoundingRectangle();
 			}
 		}
@@ -375,7 +374,7 @@ public class Z6 extends PApplet {
 			translate(-viewport.x, -viewport.y);
 			terrainQuadtrie.draw(viewport);
 			perfChecker.tick();		
-			debug.addString("terrain perf: " + perfChecker.getDeltaSec());
+			//debug.addString("terrain perf: " + perfChecker.getDeltaSec());
 						
 			spriteQuadtrie.draw(viewport);
 			
@@ -405,12 +404,12 @@ public class Z6 extends PApplet {
 
 		// Draw Clouds, mostly for parallax
 		perfChecker.tick();
-		if(Keyboard.isKeyDown(Keyboard.KEY_C)){
+		//if(Keyboard.isKeyDown(Keyboard.KEY_C)){
 			pushMatrix();
 			translate(-cloudViewport.x, -cloudViewport.y);
 			cloudQuadtrie.draw(cloudViewport);
 			popMatrix();
-		}
+		//}
 		perfChecker.tick();
 		
 		//debug.addString("Cloud perf: " + perfChecker.getDeltaSec());

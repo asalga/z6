@@ -6,8 +6,6 @@ import z6.Math.Vec2;
 /**
  * TODO:
  * fix deg_to_rad
- * allow getting hit
- * 
  * 
  * @author asalga
  *
@@ -76,8 +74,6 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 			float power = shot.getPower();
 			
 			health -= power;
-
-			
 			
 			if(health <= 0){
 				 health = 0;
@@ -175,8 +171,6 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
 			for (IGun g : guns) {
-				
-			//	Renderer.println("firing all things");
 				g.fire();
 			}
 		}
@@ -197,9 +191,9 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 		this.direction = dir;
 		this.direction.normalize();
 
-		//for (IGun g : guns) {
-		//	g.setDirection(this.direction);
-		//}
+		for (IGun g : guns) {
+			g.setDirection(this.direction);
+		}
 	}
 
 	/**
@@ -237,9 +231,7 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 	 * 
 	 * @param gun
 	 */
-	public void addGun(IGun gun) {
-		Renderer.println("adding gun to ship");
-		
+	public void addGun(IGun gun) {		
 		IGun g = gun;
 		guns.add(gun);
 		((Node) gun).setParent((Node) this);

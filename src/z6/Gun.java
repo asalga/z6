@@ -66,6 +66,10 @@ public class Gun implements IGun, Node {
 		this.direction.normalize();
 	}
 	
+	public Vec2 getDirection(){
+		return direction;
+	}
+	
 	//public void setTarget(Vec2 _target){
 	//}
 
@@ -147,9 +151,13 @@ public class Gun implements IGun, Node {
 	public void setTarget(Node _target){
 		target = _target;
 
-		if(fireBehaviour != null){
-			fireBehaviour.setTarget(target);
-		}
+		//if(fireBehaviour != null){
+		//	fireBehaviour.setTarget(target);
+		//}
+	}
+	
+	public Node getTarget(){
+		return target;
 	}
 	
 	/**

@@ -6,6 +6,6 @@ package z6;
  * 
  */
 public interface FireBehaviour{
-	public void setTarget(Node target);
+	//public void setTarget(Node target);
 	public void Fire(Gun gun);
 }

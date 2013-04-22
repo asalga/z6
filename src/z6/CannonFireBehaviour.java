@@ -21,10 +21,10 @@ public class CannonFireBehaviour implements FireBehaviour{
 	public void Fire(Gun gun){		
 		IShot shot = ShotFactory.create(Constants.CANNON_SHOT_ID);
 		
+		target = gun.getTarget();
 		//
 		if(target != null){
-			Vec2 targetPos = target.getPosition().clone();
-			Vec2 targetToGun = Vec2.sub(targetPos, gun.getPosition());
+			Vec2 targetToGun = Vec2.sub(target.getPosition(), gun.getPosition());
 			targetToGun.normalize();
 			Vec2 bulletVelocity = Vec2.scale(targetToGun, gun.getShotSpeed());
 			shot.setVelocity(bulletVelocity);
