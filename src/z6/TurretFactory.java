@@ -22,17 +22,15 @@ public final class TurretFactory {
 
 		switch (id) {
 			case Constants.CANNON_GUN_ID: {
-				//gun.setShotType(Constants.CANNON_SHOT_ID);
-				Renderer.println("Fix me");
-				gun.setShotSpeed(10);
-				//IGun cannonGun = new CannonGun(); turret.addGun(cannonGun);
+				gun.setShotSpeed(200);
+				gun.setFireRatePerSec(1.5f);
+				gun.setFireBehaviour(new CannonFireBehaviour());
 			}break;
 			
 			case Constants.MINIGUN_GUN_ID:{
-				gun.setShotSpeed(150);
-				gun.setFireRatePerSec(20);
+				gun.setShotSpeed(350);
+				gun.setFireRatePerSec(10);
 				gun.setFireBehaviour(new MinigunFireBehaviour());
-				//turret.addGun(gun);
 			};break;
 			
 			case Constants.LASER_GUN_ID:{

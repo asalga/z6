@@ -32,7 +32,7 @@ public class CannonShot implements IShot, ICollidable{
 		lifeTime = 0;
 		collisionLayer = -1;
 		id = ID.next();
-		power = 2;
+		power = 10;
 		collidable = true;
 	}
 

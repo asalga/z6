@@ -95,9 +95,9 @@ public class Z6 extends PApplet {
 		//collidableTurrets = new ArrayList<ICollidable>();
 
 		// Don't make these too small, otherwise we can't place tiles in them.
-		cloudQuadtrie  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
-		spriteQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
-		terrainQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
+		cloudQuadtrie  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
+		spriteQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 8);
+		terrainQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
 
 		// TURRETS
 		turrets = new ArrayList<Node>();
@@ -109,7 +109,7 @@ public class Z6 extends PApplet {
 			
 			switch(randTurret){
 				case 0: turret = TurretFactory.create(Constants.MINIGUN_GUN_ID);break;
-				//case 1: turret = TurretFactory.create(Constants.CANNON_GUN_ID);break;
+				case 1: turret = TurretFactory.create(Constants.CANNON_GUN_ID);break;
 				case 2: turret = TurretFactory.create(Constants.LASER_GUN_ID);break;
 				
 				default:turret = TurretFactory.create(Constants.MINIGUN_GUN_ID);break;
@@ -390,7 +390,7 @@ public class Z6 extends PApplet {
 		//debug.addString("Tiles Rendered: " + terrain.getNumTilesRendered()
 		//		+ " in " + perfChecker.getDeltaSec() * 1000 + "ms");
 
-		debug.addString("Num bullets:" + bullets.size());
+		//debug.addString("Num bullets:" + bullets.size());
 		//debug.addString("Ship: " + ship.getPosition());
 		
 		//debug.addString("Sprites rendered: " + spriteQuadtrie.getNumLeafsRendered() + " /" + NUM_TURRETS);
@@ -398,7 +398,7 @@ public class Z6 extends PApplet {
 		
 		//debug.addString("bullet count: " + bullets.size());
 		
-		debug.addString("Ship: " + ship.getHealth());
+		debug.addString("Ship health: " + ship.getHealth());
 		
 		// Draw User
 		ship.render();
