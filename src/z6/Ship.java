@@ -14,6 +14,7 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 
 	private Vec2 position;
 	private Vec2 direction;
+	private IShot dummy;
 
 	private float degreesPerSecond;
 	private float rotation;
@@ -77,6 +78,8 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 			
 			if(health <= 0){
 				 health = 0;
+				 
+				 dummy.setPosition(new Vec2());
 				// destroy();
 			 }			
 		}		
@@ -150,9 +153,9 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
-			setRotateSpeed(180f);
+			setRotateSpeed(90f);
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
-			setRotateSpeed(-180f);
+			setRotateSpeed(-90f);
 		} else {
 			setRotateSpeed(0f);
 		}

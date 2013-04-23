@@ -166,7 +166,7 @@ public class Turret implements Node, ISubscriber, ICollidable{
 			}
 
 			// Draw sight Radius
-			if(true){
+			if(false){
 			Renderer.noFill();
 			Renderer.stroke(255, 0, 0);
 			//Renderer.noStroke();

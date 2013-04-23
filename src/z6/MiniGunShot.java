@@ -13,6 +13,7 @@ public class MiniGunShot implements IShot, ICollidable{
 
 	private Vec2 position;
 	private Vec2 velocity;
+	
 	private boolean isAlive;
 	// alive, dying, dead
 	private float lifeTime;
@@ -34,6 +35,15 @@ public class MiniGunShot implements IShot, ICollidable{
 		collidable = true;
 	}
 
+	public IShot clone(){
+		MiniGunShot shot = new MiniGunShot();
+		shot.power = this.power;
+		shot.id = ID.next();
+		shot.collisionLayer = this.collisionLayer;
+		shot.collidable = this.collidable;
+		return shot;
+	}
+	
 	public int getID() {
 		return id;
 	}
@@ -46,6 +56,12 @@ public class MiniGunShot implements IShot, ICollidable{
 		return power;
 	}
 
+	public void setPower(float p){
+		if(p >= 0){
+			power = p;
+		}
+	}
+	
 	public void setVelocity(Vec2 v) {
 		velocity = v;
 	}

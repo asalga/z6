@@ -21,17 +21,17 @@ public class ShotFactory {
 		IShot shot = null;
 
 		switch (id) {
-		case Constants.CANNON_SHOT_ID:
-			shot = new CannonShot();
-			break;
+			case Constants.CANNON_SHOT_ID:
+				shot = new CannonShot();
+				break;
+				
+			case Constants.MINIGUN_SHOT_ID:
+				shot = new MiniGunShot();
+				break;
 			
-		case Constants.MINIGUN_SHOT_ID:
-			shot = new MiniGunShot();
-			break;
-		
-		case Constants.LASER_SHOT_ID:
-			shot = new LaserShot();
-			break;
+			case Constants.LASER_SHOT_ID:
+				shot = new LaserShot();
+				break;
 		}
 		
 		if(shot == null){

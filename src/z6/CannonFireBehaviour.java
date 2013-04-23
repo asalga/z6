@@ -14,8 +14,13 @@ public class CannonFireBehaviour implements FireBehaviour{
 	
 	private Node target;
 	
+	
 	public void setTarget(Node _target){
 		target = _target;
+	}
+	
+	public void setShot(IShot shot){
+		
 	}
 	
 	public void Fire(Gun gun){		

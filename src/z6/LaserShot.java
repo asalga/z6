@@ -38,6 +38,14 @@ public class LaserShot implements IShot, ISubscriber, ICollidable{
 		power = 2f;
 		collidable = true;
 	}
+	
+	public IShot clone(){
+		LaserShot shot = new LaserShot();
+		shot.collisionLayer = this.collisionLayer;
+		shot.power = this.power;
+		shot.collidable = this.collidable;
+		return shot;
+	}
 
 	public int getID() {
 		return id;
@@ -48,6 +56,10 @@ public class LaserShot implements IShot, ISubscriber, ICollidable{
 	 */
 	public float getPower(){
 		return power;
+	}
+	
+	public void setPower(float p){
+		power = p;
 	}
 	
 	public int getObjectType(){

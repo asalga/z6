@@ -13,9 +13,14 @@ import z6.Math.Vec2;
 public class MinigunFireBehaviour implements FireBehaviour{
 	
 	private Node target;
+	private IShot myshot;
 	
 	public void setTarget(Node _target){
 		target = _target;
+	}
+	
+	public void setShot(IShot shot){
+		this.myshot = shot;
 	}
 	
 	public void Fire(Gun gun){
@@ -39,11 +44,15 @@ public class MinigunFireBehaviour implements FireBehaviour{
 	
 			Vec2 bulletVelocity = Vec2.scale(targetToGun, gun.getShotSpeed());
 	
+			//IShot newShot = shot.clone();
+			
 			shot.setVelocity(bulletVelocity);
 		}
 		else{
 			Vec2 dir = gun.getDirection();
 			Vec2 bulletVelocity = Vec2.scale(dir, gun.getShotSpeed());
+			
+			shot = myshot.clone();
 			shot.setVelocity(bulletVelocity);
 		}
 		

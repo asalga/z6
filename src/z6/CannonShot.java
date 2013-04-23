@@ -36,6 +36,14 @@ public class CannonShot implements IShot, ICollidable{
 		collidable = true;
 	}
 
+	public IShot clone(){
+		CannonShot shot = new CannonShot();
+		shot.collisionLayer = this.collisionLayer;
+		shot.power = this.power;
+		shot.collidable = this.collidable;
+		return shot;
+	}
+	
 	public int getID() {
 		return id;
 	}
@@ -50,6 +58,10 @@ public class CannonShot implements IShot, ICollidable{
 	
 	public float getPower(){
 		return power;
+	}
+	
+	public void setPower(float p){
+		power = p;
 	}
 	
 	

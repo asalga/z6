@@ -7,6 +7,8 @@ package z6;
  * Add short delay to guns so they don't fire exactly at the same time
  * Bullets should use quadtree
  * 
+ * Need to adjust power of shots
+ * 
  * Guns get assigned a layer to target.
  * 
  * Problem: When inserting nodes into the quadtree, if there are many levels deep we go,
@@ -173,12 +175,16 @@ public class Z6 extends PApplet {
 		//
 		IGun miniGun = new Gun();
 		
-		FireBehaviour fb = new MinigunFireBehaviour();
-		//fb.setPower(10);
+		MinigunFireBehaviour fb = new MinigunFireBehaviour();
 		miniGun.setFireBehaviour(fb);
 		miniGun.setLayer(1);
 		miniGun.setShotSpeed(450);
 		miniGun.setFireRatePerSec(10);
+		
+		IShot templateShot = new MiniGunShot();
+		templateShot.setPower(50);
+		fb.setShot(templateShot);
+		
 		ship.addGun(miniGun);
 		
 		/*IGun laserGun = new Gun();
