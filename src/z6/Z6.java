@@ -3,19 +3,21 @@ package z6;
 /**
  * Problem: rendering cloud octree was slow - because of alpha blending
  * 
- * Ship needs to shoot
  * Add short delay to guns so they don't fire exactly at the same time
  * Bullets should use quadtree
  * 
- * Need to adjust power of shots
- * 
  * Guns get assigned a layer to target.
+ * 
+ * Remove turrets from being collidable after being destroyed since it may interfered
+ * with shooting other nearby turrets
+ * 
+ * fix 256x256 map bug
  * 
  * Problem: When inserting nodes into the quadtree, if there are many levels deep we go,
  * the tile becomes larger than the cell which returns false.
  * 1 - Make quadrants able to hold cells
  * 2 - Prevent letting cells be made less than 32x32
- * 3 -
+ * 3 - Add toggle to hold these nodes
  * 4 - 
  */
 
@@ -54,7 +56,7 @@ public class Z6 extends PApplet {
 	private GameCam gameCam;
 	private Rectangle cloudViewport;
 	
-	private int NUM_TURRETS = 200;
+	private int NUM_TURRETS = 500;
 	
 	private int GAME_WIDTH  = Constants.MAP_WIDTH_IN_TILES  * Constants.TILE_SIZE;
 	private int GAME_HEIGHT = Constants.MAP_HEIGHT_IN_TILES * Constants.TILE_SIZE;
@@ -97,7 +99,7 @@ public class Z6 extends PApplet {
 		//collidableTurrets = new ArrayList<ICollidable>();
 
 		// Don't make these too small, otherwise we can't place tiles in them.
-		cloudQuadtrie  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
+		cloudQuadtrie  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
 		spriteQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 8);
 		terrainQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
 
@@ -395,13 +397,11 @@ public class Z6 extends PApplet {
 		//debug.addString("Tiles Rendered: " + terrain.getNumTilesRendered()
 		//		+ " in " + perfChecker.getDeltaSec() * 1000 + "ms");
 
-		//debug.addString("Num bullets:" + bullets.size());
+		debug.addString("Num bullets:" + bullets.size());
 		//debug.addString("Ship: " + ship.getPosition());
 		
-		//debug.addString("Sprites rendered: " + spriteQuadtrie.getNumLeafsRendered() + " /" + NUM_TURRETS);
+		debug.addString("Sprites rendered: " + spriteQuadtrie.getNumLeafsRendered() + "/" + NUM_TURRETS);
 		//debug.addString("SpriteQT numQuadrants: " + spriteQuadtrie.getNumQuadrants());
-		
-		//debug.addString("bullet count: " + bullets.size());
 		
 		debug.addString("Ship health: " + ship.getHealth());
 		
@@ -410,19 +410,19 @@ public class Z6 extends PApplet {
 
 		// Draw Clouds, mostly for parallax
 		perfChecker.tick();
-		//if(Keyboard.isKeyDown(Keyboard.KEY_C)){
+		if(Keyboard.isKeyDown(Keyboard.KEY_C)){
 			pushMatrix();
 			translate(-cloudViewport.x, -cloudViewport.y);
 			cloudQuadtrie.draw(cloudViewport);
 			popMatrix();
-		//}
+		}
 		perfChecker.tick();
 		
 		//debug.addString("Cloud perf: " + perfChecker.getDeltaSec());
 		//debug.addString("Cloud tiles drawn: " + cloudQuadtrie.getNumTilesRendered());
 		//debug.addString("Cloud leaves drawn: " + cloudQuadtrie.getNumLeafsRendered());
 
-		//debug.addString("Terrain tiles drawn: " + terrain.getNumTilesRendered());		
+		debug.addString("Terrain tiles drawn: " + terrainQuadtrie.getNumTilesRendered());		
 		//debug.addString("Terrain leaves drawn: " + terrain.getNumLeafsRendered());
 		// psys.draw();
 

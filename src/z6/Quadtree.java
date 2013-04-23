@@ -8,12 +8,6 @@ import processing.core.PApplet;
  * TODO:
  *  - Make getNumQuadrants O(1)
  *  - Don't create empty quadrants just to test if node fits
- * 
- * Can any node hold data?
- *  If yes, we can add nodes that are greater than the size of
- *  a leaf node quadrant, but it will increase complexity slightly.
- *  
-
  *  
  * Selectively render parts of a tilegrid depending on the viewport position and dimensions.
  * When specifying the number of levels, we start at 1
@@ -27,13 +21,16 @@ import processing.core.PApplet;
  * 7 - 4096 leafs
  * 8 - 16,384 leafs
  * 9 - 65,536 leafs
- * 
- * Should Quadtree contain map??
  */
 public class Quadtree {
 	private Quadrant root;
 	private int maxLevels;
 	private boolean debugOn;
+	
+	private int NE = 0;
+	private int NW = 1;
+	private int SE = 2;
+	private int SW = 3;
 
 	// Prevent needing to traverse the entire tree to get these counts.
 	//private int numSprites;
@@ -102,6 +99,9 @@ public class Quadtree {
 		int level;
 		boolean isLeaf;
 		boolean quadrantsSetup;
+		
+		Quadrant[] quadrants; 
+		//ArrayList <Quadrant> quadrants;
 		Quadrant northEast, northWest, southEast, southWest;
 		ArrayList <Node> nodes;
 		
@@ -116,6 +116,7 @@ public class Quadtree {
 		 * @param level
 		 */
 		public Quadrant(Rectangle bounds, int level){
+			quadrants = new Quadrant[]{null, null, null, null};
 			northEast = northWest = southEast = southWest = null;
 			quadrantsSetup = false;
 			isLeaf = false;
@@ -137,6 +138,12 @@ public class Quadtree {
 				return nodes.size();
 			}
 			else{
+				for(int i = 0; i < 4; i++){
+					if(quadrants[i] != null){
+						numSpritesInSubtree += quadrants[i].getNumSpritesInChildren();
+					}
+				}
+				/*
 				if(northEast != null){
 					numSpritesInSubtree += northEast.getNumSpritesInChildren();
 				}
@@ -148,7 +155,7 @@ public class Quadtree {
 				}
 				if(southWest != null){
 					numSpritesInSubtree += southWest.getNumSpritesInChildren();
-				}
+				}*/
 			}			
 			return numSpritesInSubtree;
 		}
@@ -164,22 +171,11 @@ public class Quadtree {
 				return 1;
 			}
 			
-			if(northEast != null){
-				num += northEast.getNumQuadrants();
+			for(int i = 0; i < 4; i++){
+				if(quadrants[i] != null){
+					num += quadrants[i].getNumQuadrants();
+				}
 			}
-			
-			if(southEast != null){
-				num += southEast.getNumQuadrants();
-			}
-			
-			if(northWest != null){
-				num += northWest.getNumQuadrants();
-			}
-			
-			if(southEast != null){
-				num += southEast.getNumQuadrants();
-			}
-			
 			return 1 + num;
 		}
 
@@ -188,40 +184,15 @@ public class Quadtree {
 		 * Visit each node, and if any of the children have count == 0, remove
 		 * 
 		 */
-		public void prune(){			
-			if(northEast != null){
-				if(northEast.numSpritesInSubtree == 0){
-					northEast = null;
-				}
-				else{
-					northEast.prune();
-				}
-			}
-			
-			if(northWest != null){
-				if(northWest.numSpritesInSubtree == 0){	
-					northWest = null;
-				}
-				else{
-					northWest.prune();
-				}
-			}			
-			
-			if(southEast != null){
-				if(southEast.numSpritesInSubtree == 0){
-					southEast = null;
-				}
-				else{
-					southEast.prune();
-				}
-			}
-			
-			if(southWest != null){
-				if(southWest.numSpritesInSubtree == 0){
-					southWest = null;
-				}
-				else{
-					southWest.prune();
+		public void prune(){
+			for(int i = 0; i < 4; i++){
+				if(quadrants[i] != null){
+					if(quadrants[i].numSpritesInSubtree == 0){
+						quadrants[i] = null;
+					}
+					else{
+						quadrants[i].prune();
+					}
 				}
 			}
 		}
@@ -309,25 +280,11 @@ public class Quadtree {
 						}
 					}
 				} else {
-					
-					if(southEast != null){
-						southEast.draw(viewport);
-						southEast.drawDebugLines(viewport);
-					}
-					
-					if(southWest != null){
-						southWest.draw(viewport);
-						southWest.drawDebugLines(viewport);
-					}
-
-					if(northWest != null){
-						northWest.draw(viewport);
-						northWest.drawDebugLines(viewport);
-					}
-
-					if(northEast != null){
-						northEast.draw(viewport);
-						northEast.drawDebugLines(viewport);
+					for(int i = 0; i < 4; i++){
+						if(quadrants[i] != null){
+							quadrants[i].draw(viewport);
+							quadrants[i].drawDebugLines(viewport);
+						}
 					}
 				}
 			}
@@ -339,7 +296,7 @@ public class Quadtree {
 		 * @param x
 		 * @param y
 		 */
-		public boolean insert(Node n){//, int nx, int ny){
+		public boolean insert(Node n){
 			int nx = (int)n.getPosition().x;
 			int ny = (int)n.getPosition().y;
 			
@@ -369,20 +326,12 @@ public class Quadtree {
 						return true;
 					}
 					
-					if(northEast.insert(n)){//, nx, ny)){
-						return true;
-					}
-					
-					if(northWest.insert(n)){//, nx, ny)){
-						return true;
-					}
-					
-					if(southEast.insert(n)){//, nx, ny)){
-						return true;
-					}
-					
-					if(southWest.insert(n)){//, nx, ny)){
-						return true;
+					for(int i = 0; i < 4; i++){
+						if(quadrants[i] != null){
+							if(quadrants[i].insert(n)){
+								return true;
+							}
+						}
 					}
 				}
 			}
@@ -411,10 +360,10 @@ public class Quadtree {
 			Rectangle southEastBounds = new Rectangle(x + w / 2, y + h / 2, w / 2, h / 2);
 			Rectangle southWestBounds = new Rectangle(x, y + h / 2, w / 2, h / 2);
 			
-			northEast = new Quadrant(northEastBounds, level + 1);
-			northWest = new Quadrant(northWestBounds, level + 1);
-			southEast = new Quadrant(southEastBounds, level + 1);
-			southWest = new Quadrant(southWestBounds, level + 1);
+			quadrants[NE] = new Quadrant(northEastBounds, level + 1);
+			quadrants[NW] = new Quadrant(northWestBounds, level + 1);
+			quadrants[SE] = new Quadrant(southEastBounds, level + 1);
+			quadrants[SW] = new Quadrant(southWestBounds, level + 1);
 
 			quadrantsSetup = true;
 			
@@ -436,11 +385,9 @@ public class Quadtree {
 	 * @return true if node was inserted into the tree.
 	 * A Node would not be inserted if it didn't collide with the tree.
  	 */
-	public boolean insert(Node n){//, int x, int y){
-		return root.insert(n);//, x, y);
+	public boolean insert(Node n){
+		return root.insert(n);
 	}
-	
-	/*public void setup(int maxLevels, int width, int height) {}*/
 
 	/*
 	 * Get the number of leaf nodes rendered on the last frame.
