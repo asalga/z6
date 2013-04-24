@@ -44,9 +44,9 @@ public class Z6 extends PApplet {
 	
 	ParticleSystem psys;
 
-	private Quadtree terrainQuadtrie;
-	private Quadtree spriteQuadtrie;
-	private Quadtree cloudQuadtrie;
+	private Quadtree terrainQuadtree;
+	private Quadtree spriteQuadtree;
+	private Quadtree cloudQuadtree;
 
 	private Debugger debug;
 	private Ticker spriteTicker;
@@ -99,9 +99,9 @@ public class Z6 extends PApplet {
 		//collidableTurrets = new ArrayList<ICollidable>();
 
 		// Don't make these too small, otherwise we can't place tiles in them.
-		cloudQuadtrie  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
-		spriteQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 8);
-		terrainQuadtrie = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
+		cloudQuadtree  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
+		spriteQuadtree = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 8);
+		terrainQuadtree = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
 
 		// TURRETS
 		turrets = new ArrayList<Node>();
@@ -140,7 +140,7 @@ public class Z6 extends PApplet {
 			turret.setLayer(1);
 			
 			turrets.add(turret);
-			spriteQuadtrie.insert(turret);
+			spriteQuadtree.insert(turret);
 			
 			collidables.add(turret);
 		}
@@ -155,20 +155,20 @@ public class Z6 extends PApplet {
 				if(noiseVal > 0.5f){
 					SpriteNode cloud = new SpriteNode(c * 32, r * 32);
 					cloud.setImage(Constants.CLOUD1);
-					cloudQuadtrie.insert(cloud);
+					cloudQuadtree.insert(cloud);
 				}
 			}
 		}
-		cloudQuadtrie.prune();
+		cloudQuadtree.prune();
 		
 		
 		//////////////////////////////	
 		
-		Renderer.println("quadrants before prune:  " + spriteQuadtrie.getNumQuadrants());
-		Renderer.println( "num sprites: "   + spriteQuadtrie.getNumSprites());
-		spriteQuadtrie.prune();
-		Renderer.println("" + spriteQuadtrie.getNumSprites());
-		Renderer.println("quadrants after prune: " + spriteQuadtrie.getNumQuadrants());
+		Renderer.println("quadrants before prune:  " + spriteQuadtree.getNumQuadrants());
+		Renderer.println( "num sprites: "   + spriteQuadtree.getNumSprites());
+		spriteQuadtree.prune();
+		Renderer.println("" + spriteQuadtree.getNumSprites());
+		Renderer.println("quadrants after prune: " + spriteQuadtree.getNumQuadrants());
 		
 		ship = new Ship();
 		ship.setPosition(new Vec2(256 * 1, 256 * 1));
@@ -214,7 +214,7 @@ public class Z6 extends PApplet {
 				Tile t = loader.getTile(r, c);
 				SpriteNode n = new SpriteNode(r*32, c*32);
 				n.setImage(t.id);
-				terrainQuadtrie.insert(n);
+				terrainQuadtree.insert(n);
 			}
 		}
 	}
@@ -256,10 +256,10 @@ public class Z6 extends PApplet {
 		// Use 'R' key to toggle reporting
 		if (Keyboard.isKeyDown(Keyboard.R)) {
 			//cloudQuadtrie.debug(true);
-			spriteQuadtrie.debug(true);
+			spriteQuadtree.debug(true);
 		} else {
 			//cloudQuadtrie.debug(false);
-			spriteQuadtrie.debug(false);
+			spriteQuadtree.debug(false);
 		}
 
 		
@@ -380,11 +380,11 @@ public class Z6 extends PApplet {
 		perfChecker.tick();
 		pushMatrix();
 			translate(-viewport.x, -viewport.y);
-			terrainQuadtrie.draw(viewport);
+			terrainQuadtree.draw(viewport);
 			perfChecker.tick();		
 			//debug.addString("terrain perf: " + perfChecker.getDeltaSec());
 						
-			spriteQuadtrie.draw(viewport);
+			spriteQuadtree.draw(viewport);
 			
 			// Render all the bullets
 			for (IShot s : bullets) {
@@ -400,7 +400,7 @@ public class Z6 extends PApplet {
 		debug.addString("Num bullets:" + bullets.size());
 		//debug.addString("Ship: " + ship.getPosition());
 		
-		debug.addString("Sprites rendered: " + spriteQuadtrie.getNumLeafsRendered() + "/" + NUM_TURRETS);
+		debug.addString("Sprites rendered: " + spriteQuadtree.getNumLeafsRendered() + "/" + NUM_TURRETS);
 		//debug.addString("SpriteQT numQuadrants: " + spriteQuadtrie.getNumQuadrants());
 		
 		debug.addString("Ship health: " + ship.getHealth());
@@ -413,7 +413,7 @@ public class Z6 extends PApplet {
 		if(Keyboard.isKeyDown(Keyboard.KEY_C)){
 			pushMatrix();
 			translate(-cloudViewport.x, -cloudViewport.y);
-			cloudQuadtrie.draw(cloudViewport);
+			cloudQuadtree.draw(cloudViewport);
 			popMatrix();
 		}
 		perfChecker.tick();
@@ -422,7 +422,7 @@ public class Z6 extends PApplet {
 		//debug.addString("Cloud tiles drawn: " + cloudQuadtrie.getNumTilesRendered());
 		//debug.addString("Cloud leaves drawn: " + cloudQuadtrie.getNumLeafsRendered());
 
-		debug.addString("Terrain tiles drawn: " + terrainQuadtrie.getNumTilesRendered());		
+		debug.addString("Terrain tiles drawn: " + terrainQuadtree.getNumTilesRendered());		
 		//debug.addString("Terrain leaves drawn: " + terrain.getNumLeafsRendered());
 		// psys.draw();
 
