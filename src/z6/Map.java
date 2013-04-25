@@ -11,6 +11,7 @@ class Map{
   }
   
   public Map(int numTileRows, int numTileCols){
+	// Renderer.println("" + numTileRows);
     levelData = new Tile[numTileCols][numTileRows];
   }
   

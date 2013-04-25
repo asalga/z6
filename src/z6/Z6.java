@@ -56,7 +56,7 @@ public class Z6 extends PApplet {
 	private GameCam gameCam;
 	private Rectangle cloudViewport;
 	
-	private int NUM_TURRETS = 500;
+	private int NUM_TURRETS = 1250;
 	
 	private int GAME_WIDTH  = Constants.MAP_WIDTH_IN_TILES  * Constants.TILE_SIZE;
 	private int GAME_HEIGHT = Constants.MAP_HEIGHT_IN_TILES * Constants.TILE_SIZE;
@@ -100,9 +100,12 @@ public class Z6 extends PApplet {
 
 		// Don't make these too small, otherwise we can't place tiles in them.
 		cloudQuadtree  = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 6);
-		spriteQuadtree = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 8);
+		spriteQuadtree = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 10);
 		terrainQuadtree = new Quadtree(GAME_WIDTH, GAME_HEIGHT, 5);
 
+		Ticker ti = new Ticker();
+		ti.tick();
+		
 		// TURRETS
 		turrets = new ArrayList<Node>();
 		for (int i = 0; i < NUM_TURRETS; i++) {
@@ -144,6 +147,8 @@ public class Z6 extends PApplet {
 			
 			collidables.add(turret);
 		}
+		ti.tick();
+		Renderer.println(">>" + ti.getDeltaSec());
 		
 		Renderer.noiseSeed(1);
 		///////////////////////////
@@ -171,7 +176,7 @@ public class Z6 extends PApplet {
 		Renderer.println("quadrants after prune: " + spriteQuadtree.getNumQuadrants());
 		
 		ship = new Ship();
-		ship.setPosition(new Vec2(256 * 1, 256 * 1));
+		ship.setPosition(new Vec2(256 * 12, 256 * 12));
 		
 		
 		//
@@ -211,6 +216,7 @@ public class Z6 extends PApplet {
 
 		for(int r = 0; r < loader.getWidth(); r++){
 			for(int c = 0; c < loader.getHeight(); c++){
+				//Renderer.println("r: " +r + " c:" + c);
 				Tile t = loader.getTile(r, c);
 				SpriteNode n = new SpriteNode(r*32, c*32);
 				n.setImage(t.id);

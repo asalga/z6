@@ -11,6 +11,8 @@ public final class Constants {
 	public static void test(){}
 
 	public static final int TILE_SIZE = 32;
+	
+	//  THESE TWO VALUES MUST BE THE SAME!!!!!!!!
 	public static final int MAP_WIDTH_IN_TILES = 256;
 	public static final int MAP_HEIGHT_IN_TILES = 256;
 

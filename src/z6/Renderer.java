@@ -28,6 +28,14 @@ public final class Renderer {
 		p.noiseSeed(s);
 	}
 
+	public static int mouseX(){
+		return p.mouseX;
+	}
+	
+	public static int mouseY(){
+		return p.mouseY;
+	}
+	
 	public static void rect(float x, float y, float w, float h) {
 		p.rect(x, y, w, h);
 	}

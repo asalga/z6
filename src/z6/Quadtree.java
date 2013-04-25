@@ -6,13 +6,23 @@ import processing.core.PApplet;
 /**
  * Sparse Quadtree
  * 
- * TODO: - Make getNumQuadrants O(1) if node fits - Allow adding nodes that are
- * larger than the smallest (leaf) nodes - Allow adding sprites between nodes?
+ * TODO: - Make getNumQuadrants O(1)
+ * 
+ * Allow adding nodes that are larger than the smallest (leaf) nodes
+ * 
+ * Allow adding sprites between nodes?
  * 
  * Selectively render parts of a tilegrid depending on the viewport position and
- * dimensions. When specifying the number of levels, we start at 1 Levels 1 - 1
- * leaf 2 - 4 leafs 3 - 16 leafs 4 - 64 leafs 5 - 256 leafs 6 - 1024 leafs 7 -
- * 4096 leafs 8 - 16,384 leafs 9 - 65,536 leafs
+ * dimensions. When specifying the number of levels, we start at 1 Levels
+ * 1 - 1 leaf
+ * 2 - 4 leafs
+ * 3 - 16 leafs
+ * 4 - 64 leafs
+ * 5 - 256 leafs
+ * 6 - 1024 leafs
+ * 7 - 4096 leafs
+ * 8 - 16,384 leafs
+ * 9 - 65,536 leafs
  */
 public class Quadtree {
 	private Quadrant root;
@@ -155,8 +165,8 @@ public class Quadtree {
 		}
 
 		/**
-		 * Visit each node, and if any of the children have count == 0, remove
-		 * TODO: add comment that doesn't suck.
+		 * At this point, we do not remove sprites from the tree, so we shouldn't 
+		 * need to prune at all. However, in the future, this method will be useful.
 		 */
 		public void prune() {
 
@@ -295,64 +305,36 @@ public class Quadtree {
 		public boolean insert(Node n) {
 			int nx = (int) n.getPosition().x;
 			int ny = (int) n.getPosition().y;
+			
+			Rectangle nodeBounds = new Rectangle(nx, ny, 32, 32);
 
-			// If the node fits into this Quadrant.
-			if (Utils
-					.isRectInsideRect(
-							new Rectangle(n.getPosition().x, n.getPosition().y,
-									32, 32), bounds)) {
-				if (isLeaf()) {
+			if (isLeaf() && Utils.isRectInsideRect(nodeBounds, bounds)) {
 
-					// Lazily create the list of nodes
-					if (nodes == null) {
-						nodes = new ArrayList<Node>();
-					}
-					nodes.add(n);
-					numSpritesInTree++;
-					return true;
+				// Lazily create the list of nodes
+				if (nodes == null) {
+					nodes = new ArrayList<Node>();
 				}
+				nodes.add(n);
+				numSpritesInTree++;
+				return true;
+			}
+			else {
+				// make sure not to create children if node does not
+				// fit inside one of the children.
+				for (int i = 0; i < 4; i++) {
+					if (fitsInChild(n, i)) {
 
-				// If this node isn't a leaf, we need to
-				else {
-
-					// We know that the node fits in the parent. We need to now
-					// find out which child it fits inside, but we want to
-					// avoid creating the children if
-
-					for (int i = 0; i < 4; i++) {
-						if (fitsInChild(n, i)) {
-
-							if (quadrants == null) {
-								quadrants = new Quadrant[] { null, null, null,
-										null };
-							}
-
-							if (quadrants[i] == null) {
-								quadrants[i] = new Quadrant(getChildBounds(
-										this, i), level + 1);
-							}
-							quadrants[i].insert(n);
-							return true;
+						if (quadrants == null) {
+							quadrants = new Quadrant[] { null, null, null, null };
 						}
+
+						if (quadrants[i] == null) {
+							quadrants[i] = new Quadrant(getChildBounds(
+									this, i), level + 1);
+						}
+						quadrants[i].insert(n);
+						return true;
 					}
-
-					// if(quadrantsSetup == false){
-					// subdivide();
-					// }
-
-					// We just tried subdividing the node, but realized
-					// we reached the max depth, we need to add it to the leaf
-					// list.
-					/*
-					 * if(isLeaf){ nodes = new ArrayList<Node>(); nodes.add(n);
-					 * numSpritesInTree++; return true; }
-					 */
-
-					/*
-					 * for(int i = 0; i < 4; i++){ if(quadrants[i] != null){
-					 * if(quadrants[i].insert(n)){ return true; } } }
-					 */
-
 				}
 			}
 			return false;
@@ -401,44 +383,7 @@ public class Quadtree {
 			Rectangle nodeRect = new Rectangle(n.getPosition().x,
 					n.getPosition().y, 32, 32);
 			return Utils.isRectInsideRect(nodeRect, childBounds);
-			// quadrants[NE] = new Quadrant(northEastBounds, level + 1);
-			// quadrants[NW] = new Quadrant(northWestBounds, level + 1);
-			// quadrants[SE] = new Quadrant(southEastBounds, level + 1);
-			// quadrants[SW] = new Quadrant(southWestBounds, level + 1);
-			// quadrantsSetup = true;
-			// return false;
 		}
-
-		/**
-		 * Subdivide this node into 4 children.
-		 */
-		/*
-		 * public void subdivide() {
-		 * 
-		 * // If we reached the number of levels the user wanted, we // declare
-		 * this node to be a leaf and back out. if (maxLevels == level) { isLeaf
-		 * = true; return; }
-		 * 
-		 * float x = bounds.x; float y = bounds.y; float w = bounds.w; float h =
-		 * bounds.h;
-		 * 
-		 * Rectangle northEastBounds = new Rectangle(x + w / 2, y, w / 2, h /
-		 * 2); Rectangle northWestBounds = new Rectangle(x, y, w / 2, h / 2);
-		 * Rectangle southEastBounds = new Rectangle(x + w / 2, y + h / 2, w /
-		 * 2, h / 2); Rectangle southWestBounds = new Rectangle(x, y + h / 2, w
-		 * / 2, h / 2);
-		 * 
-		 * quadrants[NE] = new Quadrant(northEastBounds, level + 1);
-		 * quadrants[NW] = new Quadrant(northWestBounds, level + 1);
-		 * quadrants[SE] = new Quadrant(southEastBounds, level + 1);
-		 * quadrants[SW] = new Quadrant(southWestBounds, level + 1);
-		 * 
-		 * quadrantsSetup = true;
-		 * 
-		 * // uncomment to create a full quadtree. /*southEast.subdivide();
-		 * southWest.subdivide(); northEast.subdivide(); northWest.subdivide();
-		 * }
-		 */
 	}
 
 	/**

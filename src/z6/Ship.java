@@ -100,7 +100,23 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 
 		//Renderer.fill(128, 64);
 		Renderer.translate(xPos, yPos);
-		Renderer.rotate(-rotation * 0.01745329238f);
+		
+		
+		Vec2 up = new Vec2(0,1);
+		
+				Vec2 d = new Vec2(
+				(Renderer.mouseX() - 250),
+				(Renderer.mouseY() - 250)
+				);
+				d.normalize();
+				
+				
+		float f = (up.x * d.x) + (up.y * d.y);
+		
+		float r = Renderer.mouseX() < 250 ? -1 : 1;
+				
+		Renderer.rotate(r * -(float)Math.acos(f));
+		//Renderer.rotate(-rotation * 0.01745329238f);
 		
 		//Renderer.rect(-16,-16, 32, 32);
 		Renderer.image(new Tile(Constants.SHIP).getImage(), -16, -16);
@@ -142,17 +158,19 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 
 	public void update(float deltaTime) {
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
 			setSpeed(150f);
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-			setSpeed(0f);
+		if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
+			setSpeed(-150f);
 		}
+		
+
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
-			setRotateSpeed(90f);
+			setRotateSpeed(180f);
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)) {
-			setRotateSpeed(-90f);
+			setRotateSpeed(-180f);
 		} else {
 			setRotateSpeed(0f);
 		}
@@ -161,14 +179,58 @@ public class Ship implements Node, IBroadcaster, ICollidable {
 			g.update(deltaTime);
 		}
 
-		position.x += speed * deltaTime * Math.sin(rotation * 0.01745329238f);// direction.x;
-		position.y += speed * deltaTime * Math.cos(rotation * 0.01745329238f);// direction.y;
+		Vec2 test = new Vec2();
+		
+	//	test.x += speed * deltaTime * Math.sin(rotation * 0.01745329238f);// direction.x;
+	//	test.y += speed * deltaTime * Math.cos(rotation * 0.01745329238f);// direction.y;
 
+		if(Keyboard.isKeyDown(Keyboard.KEY_D)){
+			Vec2 left = new Vec2(direction.y, -direction.x);
+			left.normalize();
+			left.scale(4f);
+			test.x += left.x  * 40 *  deltaTime;
+			test.y += left.y  * 40 * deltaTime;	
+		}
+		
+		//position.x += test.x;
+		//position.y += test.y;
+		
+		if(Keyboard.isKeyDown(Keyboard.KEY_A)){
+			
+			Vec2 left = new Vec2(-direction.y, direction.x);
+			left.normalize();
+			left.scale(4f);
+			position.x += left.x  * 40 *  deltaTime;
+			position.y += left.y  * 40 * deltaTime;	
+			
+			//setSideSpeed(100);
+		}
+		
 		rotation += degreesPerSecond * deltaTime;
+		
+		//setDirection(new Vec2(
+			//	(float)Math.sin(rotation * 0.01745329238f), 
+				//(float)Math.cos(rotation * 0.01745329238f)));
 
-		setDirection(new Vec2((float)Math.sin(rotation * 0.01745329238f), (float)Math.cos(rotation
-				* 0.01745329238f)));
 
+		//setDirection(
+				Vec2 d = new Vec2(
+				
+				Renderer.mouseX() - 250,
+				Renderer.mouseY() - 250
+				
+				);
+				//Renderer.println("" +d);
+				d.normalize();
+		
+				if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+					position.x += d.x * 160 * deltaTime;
+					position.y += d.y * 160 * deltaTime;
+				}
+				
+				
+				setDirection(d);
+		
 		if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
 			for (IGun g : guns) {
 				g.fire();
