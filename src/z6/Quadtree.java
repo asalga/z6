@@ -165,11 +165,14 @@ public class Quadtree {
 		}
 
 		/**
+		 * Adding spriteNodes broke this method. It needs to be fixed
+		 * 
 		 * At this point, we do not remove sprites from the tree, so we shouldn't 
 		 * need to prune at all. However, in the future, this method will be useful.
 		 */
 		public void prune() {
-
+			Renderer.println("FIX ME");
+			/*
 			if (quadrants == null) {
 				return;
 			}
@@ -182,21 +185,21 @@ public class Quadtree {
 						quadrants[i].prune();
 					}
 				}
-			}
+			}*/
 		}
 
 		/**
 		 * Draw the lines that delineate the nodes
 		 */
 		private void drawDebugLines(Rectangle viewport) {
-			if (Utils.testCollision(bounds, viewport) == false) {
-				return;
-			}
-
 			// We are drawing the lines that show the children,
 			// so if this actually doesn't have children, it dosen't make sense
 			// to draw the lines.
 			if (debugOn == false) {
+				return;
+			}
+			
+			if (Utils.testCollision(bounds, viewport) == false) {
 				return;
 			}
 
@@ -205,51 +208,17 @@ public class Quadtree {
 			float w = bounds.w;
 			float h = bounds.h;
 
-			Renderer.pushStyle(); // Renderer.fill(0, 50 * level);
+			Renderer.pushStyle();
 			// Renderer.textSize(150 - (level * 30));
-			// Renderer.text("" +level, x + (w / 2), y + (h / 2));
+			// Renderer.text("" + level, x + (w / 2), y + (h / 2));
 
-			// Black, Red, Green, Blue, Grey, ...
-			switch (level) {
-			case 0:
-				Renderer.stroke(0, 0, 0);
-				break;
-			case 1:
-				Renderer.stroke(255, 0, 0);
-				break;
-			case 2:
-				Renderer.stroke(0, 255, 0);
-				break;
-			case 3:
-				Renderer.stroke(0, 0, 255);
-				break;
-			case 4:
-				Renderer.stroke(128, 128, 128);
-				break;
-			case 5:
-				Renderer.stroke(0, 128, 256);
-				break;
-			case 6:
-				Renderer.stroke(256, 0, 256);
-				break;
-				
-			default:
-				Renderer.stroke(0, 255, 255);
-				break;
-			}
+			float redContrib = (level/(float)maxLevels) * 255;
+			float blueContrib = 255 - (level/(float)maxLevels *255);
+			Renderer.stroke((int)redContrib, (int)redContrib, (int)blueContrib);
 
 			Renderer.noFill();
-
-			Renderer.strokeWeight((maxLevels - level)*1);
-
-			// vertical lines that show the children
-			//Renderer.line(x + (w /2), y, x + (w / 2), y + h);
-
+			Renderer.strokeWeight((maxLevels - level) /2);
 			Renderer.rect(x, y, w, h);
-
-			// horizontal
-			//Renderer.line(x, y + (h / 2), x + w, y + (h /2));
-
 			Renderer.popStyle();
 		}
 
@@ -263,7 +232,8 @@ public class Quadtree {
 			if (Utils.testCollision(viewport, bounds)) {
 				// If this node is a leaf, we can render all the tiles that lay
 				// inside it.
-				if (isLeaf()) {
+				if (nodes != null) {
+					// TODO: fix me?
 					numLeafsRendered++;
 
 					if (nodes != null) {
@@ -297,7 +267,6 @@ public class Quadtree {
 		}
 
 		/**
-		 * 
 		 * @param n
 		 * @param x
 		 * @param y
@@ -319,6 +288,9 @@ public class Quadtree {
 				return true;
 			}
 			else {
+				
+				boolean didInsert = false;
+				
 				// make sure not to create children if node does not
 				// fit inside one of the children.
 				for (int i = 0; i < 4; i++) {
@@ -336,8 +308,21 @@ public class Quadtree {
 						return true;
 					}
 				}
+				
+				// levels?
+				
+				
+				// We tried inserting into the children, but that failed (if we reached
+				// this point). So, we need to make this node a sprite node
+				if (nodes == null) {
+					nodes = new ArrayList<Node>();
+				}
+				nodes.add(n);
+				numSpritesInTree++;
+				return true;
+				
 			}
-			return false;
+			//return false;
 		}
 
 		/**
